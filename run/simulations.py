@@ -8,6 +8,7 @@ from binary_file_generator import generate_binary_files
 from solve import solve_regular
 
 from paths import DATA_DIR
+from utils import load_settings
 
 
 def get_user_input():
@@ -26,18 +27,13 @@ def get_options_from_args(options):
 
 
 def setup_binary_files():
-    with open(DATA_DIR / "user_settings.json") as f:
-        settings = json.load(f)
-
+    settings = load_settings()
     if settings.get("generate_binary_files"):
         print("Generating binary files")
-        with open(DATA_DIR / "binary_fixture_settings.md") as file:
-            fixture_setting_md = file.read()
-        match = re.search(r"```json\n(.*?)\n```", fixture_setting_md, re.DOTALL)
-        if match:
-            json_str = match.group(1)  # Extract JSON content
-            binary_fixture_settings = json.loads(json_str)
-        file_path = DATA_DIR / "fplreview_original.csv"
+        binary_fixture_settings = settings.get("binary_fixture_settings", {})
+        if not binary_fixture_settings:
+            raise ValueError("Your `binary_fixture_settings` setting is empty!")
+        file_path = DATA_DIR / "original.csv"
         generate_binary_files(file_path, binary_fixture_settings)
     return settings
 
@@ -47,10 +43,10 @@ def run_simulations_with_binaries(runs, processes, options):
     print("Using binary config for simulations")
     settings = setup_binary_files()
 
-    # get total weights for configured binary files for scaling up weights to add up to 1
-    total_weights = sum(settings.get("binary_files").values())
+    weights = settings.get("binary_file_weights", {})
+    total_weights = sum(weights.values())
 
-    for binary, weight in settings["binary_files"].items():
+    for binary, weight in weights.items():
         scaled_weight = weight / total_weights
         print(f"Binary file {binary} weight scaled from {weight} to {scaled_weight:.2f}")
         weighted_runs = round(scaled_weight * runs)
@@ -60,9 +56,7 @@ def run_simulations_with_binaries(runs, processes, options):
         start = time.time()
 
         runtime_options = options.get("runtime_options", {})
-        all_jobs = [
-            {"run_no": str(i + 1), "randomized": True, "binary_file_name": binary.rstrip(".csv"), **runtime_options} for i in range(weighted_runs)
-        ]
+        all_jobs = [{"run_no": str(i + 1), "randomized": True, "datasource": binary.rstrip(".csv"), **runtime_options} for i in range(weighted_runs)]
         with ProcessPoolExecutor(max_workers=processes) as executor:
             list(executor.map(solve_regular, all_jobs))
         print(f"\nTotal time taken is {(time.time() - start) / 60:.2f} minutes")

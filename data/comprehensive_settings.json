@@ -107,12 +107,9 @@
     "export_image": false,
     "solve_name": "regular",
     "override_next_gw": null,
-    "binary_files": {
-        "fplreview_binary_1.csv": 0.6,
-        "fplreview_binary_2.csv": 0.3,
-        "fplreview_binary_3.csv": 0.1
-    },
     "generate_binary_files": false,
+    "binary_file_weights": {},
+    "binary_fixture_settings": {},
     "verbose": true,
     "print_result_table": true,
     "print_decay_metrics": false,

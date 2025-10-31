@@ -78,8 +78,9 @@
   - `export_image`: option for exporting visualizations of the lineup
   - `solve_name`: name of the solve, used for naming the output files
   - `override_next_gw`: the start of the planning horizon -if you need to override for a specific period-
-  - `binary_files`: configure binary files names, their weights, and team-level fixture settings
   - `generate_binary_files`: flag for generating binary files based on fixture settings provided in 'binary_files'
+  - `binary_file_weights`: sets the weighting for each generated binary file. For further instructions, see `data/binary_fixtures.md`
+  - `binary_fixture_settings`: a dict containing team names and the fixtures which are moved from their original gameweek. For further instructions, see `data/binary_fixtures.md`
   - `verbose`: whether you want to highs solving progress printed to the screen
   - `print_result_table`: whether you want the result table printed to the screen after the solve has finished (the table with iter,buy,sell, chip, score columns)
   - `print_decay_metrics`: whether you want the decay metrics printed to the screen (the table that displays what your solution's objective would be is using different decay metrics)
