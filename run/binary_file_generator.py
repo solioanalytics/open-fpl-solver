@@ -19,6 +19,10 @@ def generate_binary_files(file_path, fixtures_json):
                 orig_gw_pts_col = f"{orig_gw}_Pts"
                 orig_gw_xmins_col = f"{orig_gw}_xMins"
 
+                if not new_gw:
+                    df.loc[team_mask, orig_gw_pts_col] = 0
+                    df.loc[team_mask, orig_gw_xmins_col] = 0
+
                 # Ensure relevant columns exist in the dataframe
                 if all(col in df.columns for col in [new_gw_pts_col, new_gw_xmins_col, orig_gw_pts_col, orig_gw_xmins_col]):
                     # Convert columns to numeric values for the rows we are updating
