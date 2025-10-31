@@ -168,7 +168,7 @@ def solve_regular(runtime_options=None):
             print(f"Total xPts over the horizon: {total_xp:.2f}\n")
         iteration = result["iter"]
         time_now = datetime.datetime.now()
-        stamp = time_now.strftime("%Y-%m-%d_%H:%M:%S")
+        stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
         source = options.get("datasource")
         filename = f"{source}_{stamp}_{run_id}_{iteration}"
 
