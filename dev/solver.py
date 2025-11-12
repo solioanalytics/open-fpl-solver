@@ -165,6 +165,12 @@ def prep_data(my_data, options):
     initial_squad = [int(i["element"]) for i in my_data["picks"]]
     safe_players = initial_squad + options.get("locked", []) + options.get("keep", []) + locked_next_gw + safe_players_due_price + safe_players_due_ev
 
+    for bt in options.get("booked_transfers", []):
+        if bt.get("transfer_in"):
+            safe_players.append(bt["transfer_in"])
+        if bt.get("transfer_out"):
+            safe_players.append(bt["transfer_out"])
+
     # Filter players by xMin
     xmin_lb = options.get("xmin_lb", 100)
     num_players_before = len(merged_data)
@@ -172,11 +178,6 @@ def prep_data(my_data, options):
 
     # Filter by ev per price
     ev_per_price_cutoff = options.get("ev_per_price_cutoff", 0)
-    for bt in options.get("booked_transfers", []):
-        if bt.get("transfer_in"):
-            safe_players.append(bt["transfer_in"])
-        if bt.get("transfer_out"):
-            safe_players.append(bt["transfer_out"])
     if ev_per_price_cutoff != 0:
         cutoff = (merged_data["total_ev"] / merged_data["now_cost"]).quantile(ev_per_price_cutoff / 100)
         merged_data = merged_data[(merged_data["total_ev"] / merged_data["now_cost"] > cutoff) | (merged_data["ID"].isin(safe_players))].copy()

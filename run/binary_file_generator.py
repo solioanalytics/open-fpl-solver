@@ -13,11 +13,15 @@ def generate_binary_files(file_path, fixtures_json):
             # Apply changes only to rows where the Team column matches the specified team
             team_mask = df["Team"] == team
 
-            for new_gw, orig_gw in binary_fix.items():
+            for orig_gw, new_gw in binary_fix.items():
                 new_gw_pts_col = f"{new_gw}_Pts"
                 new_gw_xmins_col = f"{new_gw}_xMins"
                 orig_gw_pts_col = f"{orig_gw}_Pts"
                 orig_gw_xmins_col = f"{orig_gw}_xMins"
+
+                if not new_gw:
+                    df.loc[team_mask, orig_gw_pts_col] = 0
+                    df.loc[team_mask, orig_gw_xmins_col] = 0
 
                 # Ensure relevant columns exist in the dataframe
                 if all(col in df.columns for col in [new_gw_pts_col, new_gw_xmins_col, orig_gw_pts_col, orig_gw_xmins_col]):
