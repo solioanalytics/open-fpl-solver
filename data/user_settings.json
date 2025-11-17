@@ -1,8 +1,7 @@
 {
     "datasource": "solio",
-    "team_data": "id",
-    "team_id": null,
-    "horizon": 8,
+    "preseason": true,
+    "horizon": 5,
     "no_transfer_last_gws": 2,
     "decay_base": 0.9,
     "ft_value_list": {

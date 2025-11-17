@@ -13,7 +13,7 @@ import requests
 import sasoptpy as so
 
 from dev.data_parser import read_data
-from utils import get_random_id
+from utils import cached_request, get_random_id
 
 warnings.filterwarnings("ignore", category=FutureWarning, module="sasoptpy")
 
@@ -30,7 +30,7 @@ MAX_PLAYERS_PER_TEAM = 3
 def generate_team_json(team_id, options):
     with requests.Session() as session:
         static_url = f"{BASE_URL}/bootstrap-static/"
-        static = session.get(static_url).json()
+        static = cached_request(static_url)
         element_to_type_dict = {x["id"]: x["element_type"] for x in static["elements"]}
         next_gw = next(x for x in static["events"] if x["is_next"])["id"]
 
@@ -101,8 +101,7 @@ def calculate_fts(transfers, next_gw, fh_gws, wc_gws):
 
 
 def prep_data(my_data, options):
-    r = requests.get("https://fantasy.premierleague.com/api/bootstrap-static/")
-    fpl_data = r.json()
+    fpl_data = cached_request("https://fantasy.premierleague.com/api/bootstrap-static/")
     valid_ids = [x["id"] for x in fpl_data["elements"]]
 
     for pid, change in options.get("price_changes", []):
@@ -127,7 +126,7 @@ def prep_data(my_data, options):
     elements_team = pd.merge(element_data, team_data, left_on="team", right_on="id")
 
     element_to_team = {x["id"]: x["team"] for x in fpl_data["elements"]}  # dict mapping element to team id
-    max_players_from_team = Counter([element_to_team[x["element"]] for x in my_data["picks"]]).most_common(1)[0][1]
+    max_players_from_team = Counter([element_to_team[x["element"]] for x in my_data["picks"]]).most_common(1)[0][1] if my_data["picks"] else 3
     data = read_data(options)
 
     merged_data = pd.merge(elements_team, data, left_on="id_x", right_on="ID")
@@ -227,7 +226,7 @@ def prep_data(my_data, options):
 
     # Fixture info
     team_code_dict = team_data.set_index("id")["name"].to_dict()
-    fixture_data = requests.get("https://fantasy.premierleague.com/api/fixtures/").json()
+    fixture_data = cached_request("https://fantasy.premierleague.com/api/fixtures/")
     fixtures = [{"gw": f["event"], "home": team_code_dict[f["team_h"]], "away": team_code_dict[f["team_a"]]} for f in fixture_data]
 
     return {

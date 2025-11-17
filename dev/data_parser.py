@@ -9,6 +9,7 @@ import requests
 from fuzzywuzzy import fuzz
 
 from paths import DATA_DIR
+from utils import cached_request
 
 
 def read_data(options, source=None):
@@ -128,11 +129,11 @@ def read_mixed(options, weights):
             final_data[c] = final_data[c] / final_data[gw + "_weight"]
 
     # Find missing players and add them
-    r = requests.get("https://fantasy.premierleague.com/api/bootstrap-static/")
-    players = r.json()["elements"]
+    fpl_data = cached_request("https://fantasy.premierleague.com/api/bootstrap-static/")
+    players = fpl_data["elements"]
     existing_ids = final_data["ID"].tolist()
     element_type_dict = {1: "G", 2: "D", 3: "M", 4: "F"}
-    teams = r.json()["teams"]
+    teams = fpl_data["teams"]
     team_code_dict = {i["code"]: i for i in teams}
     missing_players = []
     for p in players:
@@ -180,15 +181,15 @@ def fix_mikkel(file_address):
         except Exception:
             continue
 
-    r = requests.get("https://fantasy.premierleague.com/api/bootstrap-static/")
-    players = r.json()["elements"]
+    fpl_data = cached_request("https://fantasy.premierleague.com/api/bootstrap-static/")
+    players = fpl_data["elements"]
     mikkel_team_dict = {
         "BHA": "BRI",
         "CRY": "CPL",
         "NFO": "NOT",
         "WHU": "WHM",
     }
-    teams = r.json()["teams"]
+    teams = fpl_data["teams"]
     for t in teams:
         t["mikkel_short"] = mikkel_team_dict.get(t["short_name"], t["short_name"])
 
@@ -273,8 +274,8 @@ def convert_mikkel_to_review(target, output_file):
     df = fix_mikkel(target)
 
     static_url = "https://fantasy.premierleague.com/api/bootstrap-static/"
-    r = requests.get(static_url).json()
-    teams = r["teams"]
+    fpl_data = cached_request(static_url)
+    teams = fpl_data["teams"]
 
     new_names = {i: i.strip() for i in df.columns}
     df = df.rename(columns=new_names)
@@ -300,7 +301,7 @@ def convert_mikkel_to_review(target, output_file):
     df["Value"] = df["Price"]
 
     df_final = df[["ID", "Name", "Pos", "Value"] + [f"{gw}_{tag}" for gw in gws for tag in ["Pts", "xMins"]]].copy()
-    elements_data = r["elements"]
+    elements_data = fpl_data["elements"]
     player_ids = [i["id"] for i in elements_data]
     player_names = {i["id"]: i["web_name"] for i in elements_data}
     player_pos = {i["id"]: i["element_type"] for i in elements_data}

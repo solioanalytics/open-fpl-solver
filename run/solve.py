@@ -15,7 +15,7 @@ from tabulate import tabulate
 from dev.solver import generate_team_json, prep_data, solve_multi_period_fpl
 from dev.visualization import create_squad_timeline
 from paths import DATA_DIR
-from utils import get_random_id, load_config_files, load_settings
+from utils import cached_request, get_random_id, load_config_files, load_settings
 
 IS_COLAB = "COLAB_GPU" in os.environ
 BINARY_THRESHOLD = 0.5
@@ -141,9 +141,9 @@ def solve_regular(runtime_options=None):
 
     if price_changes := options.get("price_changes", []):
         my_squad_ids = [x["element"] for x in my_data["picks"]]
-        with requests.Session() as s:
-            r = s.get("https://fantasy.premierleague.com/api/bootstrap-static/").json()["elements"]
-        current_prices = {x["id"]: x["now_cost"] for x in r if x["id"] in my_squad_ids}
+        fpl_data = cached_request("https://fantasy.premierleague.com/api/bootstrap-static/")
+        elements = fpl_data["elements"]
+        current_prices = {x["id"]: x["now_cost"] for x in elements if x["id"] in my_squad_ids}
         for pid, change in price_changes:
             if pid not in my_squad_ids:
                 continue
