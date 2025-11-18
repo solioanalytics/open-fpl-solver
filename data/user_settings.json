@@ -1,8 +1,8 @@
 {
-    "datasource": "solio",
+    "datasource": "fplreview",
     "team_data": "id",
-    "team_id": null,
-    "horizon": 8,
+    "team_id": 6079037,
+    "horizon": 6,
     "no_transfer_last_gws": 2,
     "decay_base": 0.9,
     "ft_value_list": {
@@ -20,5 +20,9 @@
     "use_bb": [],
     "use_fh": [],
     "use_tc": [],
-    "verbose": true
+    "verbose": true,
+    "future_price_changes": [
+        {"id": 1, "gw": 13, "delta": 0.2},
+        {"id": 283, "gw": 14, "delta": -0.1}
+    ]
 }

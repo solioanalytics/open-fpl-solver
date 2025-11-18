@@ -46,7 +46,7 @@ def generate_team_json(team_id, options):
         fh_gws = [x["event"] for x in chips if x["name"] == "freehit"]
         wc_gws = [x["event"] for x in chips if x["name"] == "wildcard"]
 
-    # squad will remain an ID:puchase_price map throughout iteration over transfers
+    # squad will remain an ID:puchase_price map throughout iteration over transfers #####################################################
     # once they have been iterated through, can then add on the current selling price
     squad = {x["element"]: start_prices[x["element"]] for x in gw1["picks"]}
 
@@ -165,12 +165,6 @@ def prep_data(my_data, options):
     initial_squad = [int(i["element"]) for i in my_data["picks"]]
     safe_players = initial_squad + options.get("locked", []) + options.get("keep", []) + locked_next_gw + safe_players_due_price + safe_players_due_ev
 
-    for bt in options.get("booked_transfers", []):
-        if bt.get("transfer_in"):
-            safe_players.append(bt["transfer_in"])
-        if bt.get("transfer_out"):
-            safe_players.append(bt["transfer_out"])
-
     # Filter players by xMin
     xmin_lb = options.get("xmin_lb", 100)
     num_players_before = len(merged_data)
@@ -178,6 +172,11 @@ def prep_data(my_data, options):
 
     # Filter by ev per price
     ev_per_price_cutoff = options.get("ev_per_price_cutoff", 0)
+    for bt in options.get("booked_transfers", []):
+        if bt.get("transfer_in"):
+            safe_players.append(bt["transfer_in"])
+        if bt.get("transfer_out"):
+            safe_players.append(bt["transfer_out"])
     if ev_per_price_cutoff != 0:
         cutoff = (merged_data["total_ev"] / merged_data["now_cost"]).quantile(ev_per_price_cutoff / 100)
         merged_data = merged_data[(merged_data["total_ev"] / merged_data["now_cost"] > cutoff) | (merged_data["ID"].isin(safe_players))].copy()
@@ -192,18 +191,53 @@ def prep_data(my_data, options):
             noise = merged_data[f"{w}_Pts"] * (92 - merged_data[f"{w}_xMins"]) / 134 * rng.standard_normal(size=len(merged_data))
             merged_data[f"{w}_Pts"] = merged_data[f"{w}_Pts"] + noise * options.get("randomization_strength", 1)
 
+    # dynamic per-GW pricing added (replaces old static buy/sell prices)
     type_data = pd.DataFrame(fpl_data["element_types"]).set_index(["id"])
 
-    buy_price = (merged_data["now_cost"] / 10).to_dict()
-    sell_price = {i["element"]: i["selling_price"] / 10 for i in my_data["picks"]}
-    price_modified_players = []
+    # --- base (scalar) prices at start of horizon ---
+    base_buy_price = (merged_data["now_cost"] / 10).to_dict()
+    base_sell_price = {i["element"]: i["selling_price"] / 10 for i in my_data["picks"]}
 
+    price_modified_players = []
     preseason = options.get("preseason", False)
     if not preseason:
         for i in my_data["picks"]:
-            if buy_price[i["element"]] != sell_price[i["element"]]:
-                price_modified_players.append(i["element"])
-                print(f"Added player {i['element']} to list, buy price {buy_price[i['element']]} sell price {sell_price[i['element']]}")
+            pid = i["element"]
+            if base_buy_price.get(pid) != base_sell_price.get(pid):
+                price_modified_players.append(pid)
+                print(
+                    f"Added player {pid} to list, "
+                    f"buy price {base_buy_price[pid]} sell price {base_sell_price[pid]}"
+                )
+    
+    # --- per-GW prices: {ID: {gw: price}} ---
+    horizon = options.get("horizon", 3)
+    gw_start = gw
+    gw_end = min(39, gw + horizon)
+    gws_price = list(range(gw_start, gw_end))
+
+    buy_price: dict[int, dict[int, float]] = {}
+    sell_price: dict[int, dict[int, float]] = {}
+
+    for pid in merged_data.index:
+        buy_price[pid] = {}
+        sell_price[pid] = {}
+        for w in gws_price:
+            b = base_buy_price[pid]
+            s = base_sell_price.get(pid, b)
+            buy_price[pid][w] = b
+            sell_price[pid][w] = s
+
+    # --- apply future_price_changes from user_settings.json ---
+    for change in options.get("future_price_changes", []):
+        pid = change.get("id")
+        w   = change.get("gw")
+        d   = change.get("delta", 0.0)
+        if pid in buy_price and w in buy_price[pid]:
+            buy_price[pid][w]  += d
+            sell_price[pid][w] += d
+            print(f"Future price change: player {pid}, GW {w}, delta {d}, "
+                f"new buy={buy_price[pid][w]}, sell={sell_price[pid][w]}")
 
     itb = my_data["transfers"]["bank"] / 10
     ft_base = None
@@ -239,6 +273,7 @@ def prep_data(my_data, options):
         "initial_squad": initial_squad,
         "sell_price": sell_price,
         "buy_price": buy_price,
+        "base_buy_price": base_buy_price,
         "price_modified_players": price_modified_players,
         "itb": itb,
         "ft": ft,
@@ -311,11 +346,14 @@ def solve_multi_period_fpl(data, options):
     initial_squad = data["initial_squad"]
     itb = data["itb"]
     fixtures = data["fixtures"]
+    base_buy_price = data.get("base_buy_price", None)
     if preseason:
         itb = 100
         threshold_gw = 2
     else:
         threshold_gw = next_gw
+
+    base_buy_price = data.get("base_buy_price", None)
 
     # Sets
     players = merged_data.index.to_list()
@@ -367,19 +405,30 @@ def solve_multi_period_fpl(data, options):
     squad_fh_type_count = {
         (t, w): so.expr_sum(squad_fh[p, w] for p in players if merged_data.loc[p, "element_type"] == t) for t in el_types for w in gws
     }
+
+    # switched to per-GW buy/sell prices instead of static scalar prices
     player_type = merged_data["element_type"].to_dict()
-    # player_price = (merged_data['now_cost'] / 10).to_dict()
-    sell_price = data["sell_price"]
-    buy_price = data["buy_price"]
+    sell_price = data["sell_price"]   # {ID: {gw: price}}
+    buy_price = data["buy_price"]     # {ID: {gw: price}}
+
     sold_amount = {
         w: (
-            so.expr_sum(sell_price[p] * transfer_out_first[p, w] for p in price_modified_players)
-            + so.expr_sum(buy_price[p] * transfer_out_regular[p, w] for p in players)
+            so.expr_sum(sell_price[p][w] * transfer_out_first[p, w] for p in price_modified_players)
+            + so.expr_sum(buy_price[p][w]  * transfer_out_regular[p, w] for p in players)
         )
         for w in gws
     }
-    fh_sell_price = {p: sell_price[p] if p in price_modified_players else buy_price[p] for p in players}
-    bought_amount = {w: so.expr_sum(buy_price[p] * transfer_in[p, w] for p in players) for w in gws}
+
+    fh_sell_price = {
+        (p, w): (sell_price[p][w] if p in price_modified_players else buy_price[p][w])
+        for p in players for w in gws
+    }
+
+    bought_amount = {
+        w: so.expr_sum(buy_price[p][w] * transfer_in[p, w] for p in players)
+        for w in gws
+    }
+
     points_player_week = {(p, w): merged_data.loc[p, f"{w}_Pts"] for p in players for w in gws}
     minutes_player_week = {(p, w): merged_data.loc[p, f"{w}_xMins"] for p in players for w in gws}
     player_team = {p: merged_data.loc[p, "name"] for p in players}
@@ -457,14 +506,16 @@ def solve_multi_period_fpl(data, options):
         ),
         name="cont_budget",
     )
+    # updated FH budget to use per-GW prices (fh_sell_price[p, w])
     model.add_constraints(
         (
-            so.expr_sum(fh_sell_price[p] * squad[p, w - 1] for p in players) + in_the_bank[w - 1]
-            >= so.expr_sum(buy_price[p] * squad_fh[p, w] for p in players)
+            so.expr_sum(fh_sell_price[p, w] * squad[p, w - 1] for p in players) + in_the_bank[w - 1]
+            >= so.expr_sum(fh_sell_price[p, w] * squad_fh[p, w] for p in players)
             for w in gws
         ),
         name="fh_budget",
     )
+    
     model.add_constraints((transfer_in[p, w] <= 1 - use_fh[w] for p in players for w in gws), name="no_tr_in_fh")
     model.add_constraints((transfer_out[p, w] <= 1 - use_fh[w] for p in players for w in gws), name="no_tr_out_fh")
 
@@ -484,8 +535,8 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((raw_gw_ft[w] <= 5 + m * ft_above_ub[w] for w in gws), name="ft_above_ub_ub")
 
     # ft_below_lb[w] == 1  <=>  raw_gw_ft[w] < 0
-    model.add_constraints((raw_gw_ft[w] <= 0 + m * (1 - ft_below_lb[w]) for w in gws), name="ft_below_lb_ub")
-    model.add_constraints((raw_gw_ft[w] >= -1 - m * ft_below_lb[w] for w in gws), name="ft_below_lb_lb")
+    model.add_constraints((raw_gw_ft[w] <= -1 + m * (1 - ft_below_lb[w]) for w in gws), name="ft_below_lb_ub")
+    model.add_constraints((raw_gw_ft[w] >= 0 - m * ft_below_lb[w] for w in gws), name="ft_below_lb_lb")
 
     # FREE TRANSFER LOGIC
 
@@ -789,6 +840,9 @@ def solve_multi_period_fpl(data, options):
         model.add_constraints((gw_with_tr[w] <= num_transfers[w] for w in gws), name="gw_with_tr_ub")
         model.add_constraints((in_the_bank[w] >= buffer_amount * gw_with_tr[w] for w in gws), name="buffer_con")
 
+    if base_buy_price is None:
+        # derive scalar base prices from the first gw in the horizon
+        base_buy_price = {p: buy_price[p][gws[0]] for p in players}
     if options.get("pick_prices", None) not in [None, {"G": "", "D": "", "M": "", "F": ""}]:
         print("OC - Pick Prices")
         buffer = 0.2
@@ -801,7 +855,10 @@ def solve_multi_period_fpl(data, options):
             con_iter = 0
             for key, count in value_dict.items():
                 target_players = [
-                    p for p in players if merged_data.loc[p, "Pos"] == pos and buy_price[p] >= key - buffer and buy_price[p] <= key + buffer
+                    p for p in players 
+                    if merged_data.loc[p, "Pos"] == pos 
+                    and base_buy_price[p] >= key - buffer 
+                    and base_buy_price[p] <= key + buffer
                 ]
                 model.add_constraints((so.expr_sum(squad[p, w] for p in target_players) >= count for w in gws), name=f"price_point_{pos}_{con_iter}")
                 con_iter += 1
@@ -1009,14 +1066,15 @@ def solve_multi_period_fpl(data, options):
                         if bench[p, w, o].get_value() > BINARY_THRESHOLD:
                             bench_value = o
                     position = type_data.loc[lp["element_type"], "singular_name_short"]
-                    player_buy_price = 0 if not is_transfer_in else buy_price[p]
-                    player_sell_price = (
-                        0
-                        if not is_transfer_out
-                        else (
-                            sell_price[p] if p in price_modified_players and transfer_out_first[p, w].get_value() > BINARY_THRESHOLD else buy_price[p]
-                        )
-                    )
+                    player_buy_price = 0 if not is_transfer_in else buy_price[p][w]
+                    if not is_transfer_out:
+                        player_sell_price = 0
+                    else:
+                        if p in price_modified_players and transfer_out_first[p, w].get_value() > BINARY_THRESHOLD:
+                            player_sell_price = sell_price[p][w] # changed: per-GW sell price
+                        else:
+                            player_sell_price = buy_price[p][w] # changed: fallback uses per-GW buy price
+
                     multiplier = 1 * (is_lineup == 1) + 1 * (is_captain == 1) + 1 * (is_tc == 1)
                     xp_cont = points_player_week[p, w] * multiplier
 
@@ -1057,6 +1115,9 @@ def solve_multi_period_fpl(data, options):
                             "iter": iteration,
                             "ft": fts[w].get_value(),
                             "transfer_count": num_transfers[w].get_value(),
+                            # JUST FOR VALIDATION: always show the price the model would use in case of change in this GW 
+                            "model_buy_price": buy_price[p][w],
+                            "model_sell_price": sell_price[p][w],
                         }
                     )
 
