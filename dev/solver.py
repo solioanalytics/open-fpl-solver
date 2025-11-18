@@ -46,7 +46,7 @@ def generate_team_json(team_id, options):
         fh_gws = [x["event"] for x in chips if x["name"] == "freehit"]
         wc_gws = [x["event"] for x in chips if x["name"] == "wildcard"]
 
-    # squad will remain an ID:puchase_price map throughout iteration over transfers #####################################################
+    # squad will remain an ID:puchase_price map throughout iteration over transfers
     # once they have been iterated through, can then add on the current selling price
     squad = {x["element"]: start_prices[x["element"]] for x in gw1["picks"]}
 
