@@ -353,8 +353,6 @@ def solve_multi_period_fpl(data, options):
     else:
         threshold_gw = next_gw
 
-    base_buy_price = data.get("base_buy_price", None)
-
     # Sets
     players = merged_data.index.to_list()
     el_types = type_data.index.to_list()
