@@ -169,11 +169,15 @@ def solve_regular(runtime_options=None):
         iteration = result["iter"]
         time_now = datetime.datetime.now()
         stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
-        source = options.get("datasource")
-        filename = f"{source}_{stamp}_{run_id}_{iteration}"
-
-        if not os.path.exists(DATA_DIR / "results/"):
+        if not (os.path.exists(DATA_DIR / "results/")):
             os.mkdir(DATA_DIR / "results/")
+
+        solve_name = options.get("solve_name", "regular")
+        if options.get("binary_file_name"):
+            bfn = options.get("binary_file_name")
+            filename = f"{solve_name}_{bfn}_{stamp}_{run_id}_{iteration}"
+        else:
+            filename = f"{solve_name}_{stamp}_{run_id}_{iteration}"
         result["picks"].to_csv(DATA_DIR / "results" / f"{filename}.csv", index=False)
 
         if options.get("export_image", 0) and not IS_COLAB:
