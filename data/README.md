@@ -32,11 +32,11 @@ These are the core settings most users will interact with. You'll find them in `
 
 ### Player Pool Filtering
 - `xmin_lb`: drop players below this many expected minutes across the horizon
-  - Example: `"xmin_lb": 300` (drop players with <300 expected minutes)
+  - Example: `"xmin_lb": 300` (drop players with &lt;300 expected minutes)
 - `ev_per_price_cutoff`: drop players below this percentile of expected value per price
   - Example: `"ev_per_price_cutoff": 30` (drop bottom 30%)
-- `keep_top_ev_percent`: keep only top n% of players by total expected value
-  - Example: `"keep_top_ev_percent": 5` (keep only top 5% EV players)
+- `keep_top_ev_percent`: force the filtering to always keep the top n% of players by total expected value, even if they would have been otherwise filtered out by other steps
+  - Example: `"keep_top_ev_percent": 5` (avoid filtering out players in the top 5% by total EV)
 
 ### Player Constraints
 - `banned`: list of player IDs to exclude from entire horizon
@@ -66,19 +66,19 @@ These are the core settings most users will interact with. You'll find them in `
 
 ## Advanced Settings
 
-These settings provide fine-grained control over the optimization. Most users won't need to adjust these. See `comprehensive_settings.json` for examples.
+These settings provide fine-grained control over the optimization. Most users won't need to adjust these. See `comprehensive_settings.json` for default values.
 
 ### Scoring & Objective Function
 - `ft_value`: value (in points) assigned to having one extra free transfer
   - Example: `"ft_value": 1.5`
-- `bench_weights`: weights for each bench position's expected points (0=GK, 1=sub1, 2=sub2, 3=sub3)
+- `bench_weights`: weights for each bench position's expected points (0=subGK, 1=sub1, 2=sub2, 3=sub3)
   - Example: `"bench_weights": {"0": 0.03, "1": 0.21, "2": 0.06, "3": 0.002}`
 - `vcap_weight`: weight for vice-captain points in the objective function
   - Example: `"vcap_weight": 0.1`
 - `itb_value`: value (in points) assigned to having 1.0 extra budget in the bank
   - Example: `"itb_value": 0.08`
-- `itb_loss_per_transfer`: reduction in ITB value per scheduled transfer in future
-  - Example: `"itb_loss_per_transfer": 0`
+- `itb_loss_per_transfer`: reduction in ITB value per scheduled transfer in future (tries to give some budget flexibility for future gameweeks)
+  - Example: `"itb_loss_per_transfer": 0.05`
 - `ft_use_penalty`: penalty applied when a free transfer is used (prevents trivial scheduled transfers)
   - Example: `"ft_use_penalty": 0.2`
 
@@ -86,7 +86,7 @@ These settings provide fine-grained control over the optimization. Most users wo
 - `no_future_transfer`: if `true`, disable planning transfers beyond current gameweek
   - Example: `"no_future_transfer": false`
 - `no_transfer_by_position`: list of positions to ban transfers in/out. Valid: `["G", "D", "M", "F"]`
-  - Example: `"no_transfer_by_position": []`
+  - Example: `"no_transfer_by_position": ["G", "D"]`
 - `force_ft_state_lb`: list of `[GW, minimum_FTs]` pairs to force minimum FTs in specific gameweeks
   - Example: `"force_ft_state_lb": [[4, 3], [7, 2]]` ensures at least 3 FTs in GW4 and 2 FTs in GW7
 - `force_ft_state_ub`: list of `[GW, maximum_FTs]` pairs to force maximum FTs in specific gameweeks
@@ -99,8 +99,8 @@ These settings provide fine-grained control over the optimization. Most users wo
   - Example: `"weekly_hit_limit": 0`
 - `hit_cost`: points deducted per hit (default 4)
   - Example: `"hit_cost": 4`
-- `future_transfer_limit`: upper bound on transfers in future gameweeks
-  - Example: `"future_transfer_limit": null`
+- `future_transfer_limit`: upper bound on total transfers made in future gameweeks
+  - Example: `"future_transfer_limit": 5`
 - `no_transfer_gws`: list of gameweek numbers where transfers are not allowed
   - Example: `"no_transfer_gws": []`
 - `transfer_itb_buffer`: minimum ITB (in the bank) to maintain if any transfer is planned (for robustness)
@@ -114,9 +114,11 @@ These settings provide fine-grained control over the optimization. Most users wo
 
 ### Player Management (Advanced)
 - `banned_next_gw`: list of player IDs to ban from next gameweek, or `[ID, GW]` to ban for specific GW
-  - Example: `"banned_next_gw": [100, [200, 32]]` bans 100 next GW and 200 for GW32 only
-- `locked_next_gw`: list of player IDs to force into next gameweek (supports per-GW like `banned_next_gw`)
+  - Example: `"banned_next_gw": [100, [200, 32]]` bans player ID 100 next GW, and player ID 200 for GW32 only
+- `locked_next_gw`: list of player IDs to force into next gameweek's squad (supports per-GW like `banned_next_gw`)
   - Example: `"locked_next_gw": []`
+- `keep`: list of player IDs that will not be kept throughout the player filtering process, even if they would otherwise be filtered out.
+  - Example: `"keep": []`
 - `price_changes`: list of `[player_ID, price_change]` pairs to simulate price changes (in £0.1m increments)
   - Example: `"price_changes": [[311, 1], [351, -1]]` simulates player 311 up £0.1m, player 351 down £0.1m
 - `pick_prices`: force players at specific price points by position
@@ -131,12 +133,12 @@ These settings provide fine-grained control over the optimization. Most users wo
   - Example: `"randomization_strength": 1.0`
 
 ### Chip Management
-- `chip_limits`: maximum count for each chip type
+- `chip_limits`: maximum count for each chip type (note: this does not need to be edited if using `use_fh`, `use_wc` etc. )
   - Example: `"chip_limits": {"bb": 0, "wc": 0, "fh": 0, "tc": 0}`
 - `no_chip_gws`: list of gameweeks where no chips can be used
   - Example: `"no_chip_gws": []`
 - `allowed_chip_gws`: dictionary of chip types to lists of allowed gameweeks
-  - Example: `"allowed_chip_gws": {"wc": [15, 27], "fh": [30, 31]}`
+  - Example: `"allowed_chip_gws": {"wc": [25, 27], "fh": [30, 31]}`
 - `forced_chip_gws`: dictionary of chip types to lists of gameweeks where chip MUST be used
   - Example: `"forced_chip_gws": {"wc": [], "bb": [], "fh": [], "tc": []}`
 - `preseason`: special flag for GW1 solving where team data is not important
@@ -177,7 +179,7 @@ These settings provide fine-grained control over the optimization. Most users wo
   - Example: `"data_weights": {"solio": 1, "review": 1}`
 - `export_data`: option to export mixed data as CSV
   - Example: `"export_data": "mixed.csv"`
-- `report_decay_base`: list of decay bases to compute and report for sensitivity analysis
+- `report_decay_base`: list of decay bases to compute and report for the solve
   - Example: `"report_decay_base": [0.85, 1.0, 1.017]`
 
 ### Team Data Options
@@ -190,7 +192,7 @@ These settings provide fine-grained control over the optimization. Most users wo
 ### Solver Behavior
 - `secs`: time limit for solver in seconds
   - Example: `"secs": 600` (10 minutes)
-- `gap`: relative optimality gap (0.0–1.0). Solver stops when within this gap of optimal. Set 0 for proven optimality
+- `gap`: relative optimality gap (0.0–1.0). Solver stops when within this gap of optimal. Set to 0 for proven optimality
   - Example: `"gap": 0` (solve to optimality)
 - `delete_tmp`: if `true`, delete temporary solver files after solving
   - Example: `"delete_tmp": true`
@@ -198,8 +200,6 @@ These settings provide fine-grained control over the optimization. Most users wo
   - Example: `"single_solve": true`
 - `solver`: which solver to use (e.g., `"highs"`)
   - Example: `"solver": "highs"`
-- `keep`: internal array for keeping files
-  - Example: `"keep": []`
 
 ### Output & Exports
 - `export_image`: if `true`, generate and export lineup visualizations
@@ -235,88 +235,87 @@ These settings provide fine-grained control over the optimization. Most users wo
 
 ## Complete Reference
 
-For a complete alphabetical listing of all settings, see [`comprehensive_settings.json`](comprehensive_settings.json).
-
-| Setting | Type | User-Friendly? | See |
-|---------|------|---|---|
-| `allowed_chip_gws` | dict | ❌ | [Advanced](#chip-management) |
-| `banned` | list | ✅ | [User-Friendly](#player-constraints) |
-| `banned_next_gw` | list | ❌ | [Advanced](#player-management-advanced) |
-| `bench_weights` | dict | ❌ | [Advanced](#scoring--objective-function) |
-| `binary_files` | dict | ❌ | [Advanced](#binary-files-advanced) |
-| `booked_transfers` | list | ❌ | [Advanced](#transfer--hit-management) |
-| `chip_limits` | dict | ❌ | [Advanced](#chip-management) |
-| `data_weights` | dict | ❌ | [Advanced](#data-sources) |
-| `datasource` | string | ✅ | [User-Friendly](#data-source--team) |
-| `dataframe_format` | string | ❌ | [Advanced](#output--exports) |
-| `decay_base` | float | ✅ | [User-Friendly](#decay--valuation) |
-| `delete_tmp` | bool | ❌ | [Advanced](#solver-behavior) |
-| `double_defense_pick` | bool | ❌ | [Advanced](#lineup-constraints) |
-| `ev_per_price_cutoff` | int | ✅ | [User-Friendly](#player-pool-filtering) |
-| `export_data` | string | ❌ | [Advanced](#data-sources) |
-| `export_image` | bool | ❌ | [Advanced](#output--exports) |
-| `force_ft_state_lb` | list | ❌ | [Advanced](#transfer--hit-management) |
-| `force_ft_state_ub` | list | ❌ | [Advanced](#transfer--hit-management) |
-| `forced_chip_gws` | dict | ❌ | [Advanced](#chip-management) |
-| `ft_use_penalty` | float | ❌ | [Advanced](#scoring--objective-function) |
-| `ft_value` | float | ❌ | [Advanced](#scoring--objective-function) |
-| `ft_value_list` | dict | ✅ | [User-Friendly](#decay--valuation) |
-| `future_transfer_limit` | int | ❌ | [Advanced](#transfer--hit-management) |
-| `gap` | float | ❌ | [Advanced](#solver-behavior) |
-| `generate_binary_files` | bool | ❌ | [Advanced](#binary-files-advanced) |
-| `hide_transfers` | bool | ❌ | [Advanced](#output--exports) |
-| `hit_cost` | int | ❌ | [Advanced](#transfer--hit-management) |
-| `hit_limit` | int | ❌ | [Advanced](#transfer--hit-management) |
-| `horizon` | int | ✅ | [User-Friendly](#planning-horizon) |
-| `itb_loss_per_transfer` | float | ❌ | [Advanced](#scoring--objective-function) |
-| `itb_value` | float | ❌ | [Advanced](#scoring--objective-function) |
-| `iteration_criteria` | string | ❌ | [Advanced](#solution-variants) |
-| `iteration_difference` | int | ❌ | [Advanced](#solution-variants) |
-| `iteration_target` | list | ❌ | [Advanced](#solution-variants) |
-| `keep` | list | ❌ | [Advanced](#solver-behavior) |
-| `keep_top_ev_percent` | int | ✅ | [User-Friendly](#player-pool-filtering) |
-| `locked` | list | ✅ | [User-Friendly](#player-constraints) |
-| `locked_next_gw` | list | ❌ | [Advanced](#player-management-advanced) |
-| `max_defenders_per_team` | int | ❌ | [Advanced](#lineup-constraints) |
-| `no_chip_gws` | list | ❌ | [Advanced](#chip-management) |
-| `no_future_transfer` | bool | ❌ | [Advanced](#transfer--hit-management) |
-| `no_gk_rotation_after` | int | ❌ | [Advanced](#lineup-constraints) |
-| `no_opposing_play` | bool/str | ❌ | [Advanced](#lineup-constraints) |
-| `no_transfer_by_position` | list | ❌ | [Advanced](#transfer--hit-management) |
-| `no_transfer_gws` | list | ❌ | [Advanced](#transfer--hit-management) |
-| `no_transfer_last_gws` | int | ✅ | [User-Friendly](#transfer-constraints) |
-| `no_trs_except_wc` | bool | ❌ | [Advanced](#transfer--hit-management) |
-| `num_iterations` | int | ❌ | [Advanced](#solution-variants) |
-| `num_transfers` | int | ❌ | [Advanced](#transfer--hit-management) |
-| `only_booked_transfers` | bool | ❌ | [Advanced](#transfer--hit-management) |
-| `opposing_play_group` | string | ❌ | [Advanced](#lineup-constraints) |
-| `opposing_play_penalty` | float | ❌ | [Advanced](#lineup-constraints) |
-| `override_next_gw` | int | ❌ | [Advanced](#team-data-options) |
-| `pick_prices` | dict | ❌ | [Advanced](#player-management-advanced) |
-| `preseason` | bool | ❌ | [Advanced](#chip-management) |
-| `price_changes` | list | ❌ | [Advanced](#player-management-advanced) |
-| `print_decay_metrics` | bool | ❌ | [Advanced](#output--exports) |
-| `print_result_table` | bool | ❌ | [Advanced](#output--exports) |
-| `print_squads` | bool | ❌ | [Advanced](#output--exports) |
-| `print_transfer_chip_summary` | bool | ❌ | [Advanced](#output--exports) |
-| `randomization_seed` | int/null | ❌ | [Advanced](#randomization) |
-| `randomization_strength` | float | ❌ | [Advanced](#randomization) |
-| `randomized` | bool | ❌ | [Advanced](#randomization) |
-| `report_decay_base` | list | ❌ | [Advanced](#data-sources) |
-| `secs` | int | ❌ | [Advanced](#solver-behavior) |
-| `single_solve` | bool | ❌ | [Advanced](#solver-behavior) |
-| `solver` | string | ❌ | [Advanced](#solver-behavior) |
-| `solutions_file` | string | ❌ | [Advanced](#output--exports) |
-| `solutions_file_player_type` | string | ❌ | [Advanced](#output--exports) |
-| `solve_name` | string | ❌ | [Advanced](#output--exports) |
-| `team_data` | string | ✅ | [User-Friendly](#data-source--team) |
-| `team_id` | int | ✅ | [User-Friendly](#data-source--team) |
-| `team_json` | object | ❌ | [Advanced](#team-data-options) |
-| `transfer_itb_buffer` | float | ❌ | [Advanced](#transfer--hit-management) |
-| `use_bb` | list | ✅ | [User-Friendly](#chips) |
-| `use_fh` | list | ✅ | [User-Friendly](#chips) |
-| `use_tc` | list | ✅ | [User-Friendly](#chips) |
-| `use_wc` | list | ✅ | [User-Friendly](#chips) |
-| `vcap_weight` | float | ❌ | [Advanced](#scoring--objective-function) |
-| `verbose` | bool | ✅ | [User-Friendly](#output) |
-| `xmin_lb` | int | ✅ | [User-Friendly](#player-pool-filtering) |
+For a complete listing of all settings and their default values, see [`comprehensive_settings.json`](comprehensive_settings.json).
+| Setting | Type | User-Friendly? |
+|----------------|------|----------------|
+| [`allowed_chip_gws`](#chip-management) | dict | ❌ |
+| [`banned`](#player-constraints) | list | ✅ |
+| [`banned_next_gw`](#player-management-advanced) | list | ❌ |
+| [`bench_weights`](#scoring--objective-function) | dict | ❌ |
+| [`binary_files`](#binary-files-advanced) | dict | ❌ |
+| [`booked_transfers`](#transfer--hit-management) | list | ❌ |
+| [`chip_limits`](#chip-management) | dict | ❌ |
+| [`data_weights`](#data-sources) | dict | ❌ |
+| [`datasource`](#data-source--team) | string | ✅ |
+| [`dataframe_format`](#output--exports) | string | ❌ |
+| [`decay_base`](#decay--valuation) | float | ✅ |
+| [`delete_tmp`](#solver-behavior) | bool | ❌ |
+| [`double_defense_pick`](#lineup-constraints) | bool | ❌ |
+| [`ev_per_price_cutoff`](#player-pool-filtering) | int | ✅ |
+| [`export_data`](#data-sources) | string | ❌ |
+| [`export_image`](#output--exports) | bool | ❌ |
+| [`force_ft_state_lb`](#transfer--hit-management) | list | ❌ |
+| [`force_ft_state_ub`](#transfer--hit-management) | list | ❌ |
+| [`forced_chip_gws`](#chip-management) | dict | ❌ |
+| [`ft_use_penalty`](#scoring--objective-function) | float | ❌ |
+| [`ft_value`](#scoring--objective-function) | float | ❌ |
+| [`ft_value_list`](#decay--valuation) | dict | ✅ |
+| [`future_transfer_limit`](#transfer--hit-management) | int | ❌ |
+| [`gap`](#solver-behavior) | float | ❌ |
+| [`generate_binary_files`](#binary-files-advanced) | bool | ❌ |
+| [`hide_transfers`](#output--exports) | bool | ❌ |
+| [`hit_cost`](#transfer--hit-management) | int | ❌ |
+| [`hit_limit`](#transfer--hit-management) | int | ❌ |
+| [`horizon`](#planning-horizon) | int | ✅ |
+| [`itb_loss_per_transfer`](#scoring--objective-function) | float | ❌ |
+| [`itb_value`](#scoring--objective-function) | float | ❌ |
+| [`iteration_criteria`](#solution-variants) | string | ❌ |
+| [`iteration_difference`](#solution-variants) | int | ❌ |
+| [`iteration_target`](#solution-variants) | list | ❌ |
+| [`keep`](#player-management-advanced) | list | ❌ |
+| [`keep_top_ev_percent`](#player-pool-filtering) | int | ✅ |
+| [`locked`](#player-constraints) | list | ✅ |
+| [`locked_next_gw`](#player-management-advanced) | list | ❌ |
+| [`max_defenders_per_team`](#lineup-constraints) | int | ❌ |
+| [`no_chip_gws`](#chip-management) | list | ❌ |
+| [`no_future_transfer`](#transfer--hit-management) | bool | ❌ |
+| [`no_gk_rotation_after`](#lineup-constraints) | int | ❌ |
+| [`no_opposing_play`](#lineup-constraints) | bool/str | ❌ |
+| [`no_transfer_by_position`](#transfer--hit-management) | list | ❌ |
+| [`no_transfer_gws`](#transfer--hit-management) | list | ❌ |
+| [`no_transfer_last_gws`](#transfer-constraints) | int | ✅ |
+| [`no_trs_except_wc`](#transfer--hit-management) | bool | ❌ |
+| [`num_iterations`](#solution-variants) | int | ❌ |
+| [`num_transfers`](#transfer--hit-management) | int | ❌ |
+| [`only_booked_transfers`](#transfer--hit-management) | bool | ❌ |
+| [`opposing_play_group`](#lineup-constraints) | string | ❌ |
+| [`opposing_play_penalty`](#lineup-constraints) | float | ❌ |
+| [`override_next_gw`](#team-data-options) | int | ❌ |
+| [`pick_prices`](#player-management-advanced) | dict | ❌ |
+| [`preseason`](#chip-management) | bool | ❌ |
+| [`price_changes`](#player-management-advanced) | list | ❌ |
+| [`print_decay_metrics`](#output--exports) | bool | ❌ |
+| [`print_result_table`](#output--exports) | bool | ❌ |
+| [`print_squads`](#output--exports) | bool | ❌ |
+| [`print_transfer_chip_summary`](#output--exports) | bool | ❌ |
+| [`randomization_seed`](#randomization) | int/null | ❌ |
+| [`randomization_strength`](#randomization) | float | ❌ |
+| [`randomized`](#randomization) | bool | ❌ |
+| [`report_decay_base`](#data-sources) | list | ❌ |
+| [`secs`](#solver-behavior) | int | ❌ |
+| [`single_solve`](#solver-behavior) | bool | ❌ |
+| [`solver`](#solver-behavior) | string | ❌ |
+| [`solutions_file`](#output--exports) | string | ❌ |
+| [`solutions_file_player_type`](#output--exports) | string | ❌ |
+| [`solve_name`](#output--exports) | string | ❌ |
+| [`team_data`](#data-source--team) | string | ✅ |
+| [`team_id`](#data-source--team) | int | ✅ |
+| [`team_json`](#team-data-options) | object | ❌ |
+| [`transfer_itb_buffer`](#transfer--hit-management) | float | ❌ |
+| [`use_bb`](#chips) | list | ✅ |
+| [`use_fh`](#chips) | list | ✅ |
+| [`use_tc`](#chips) | list | ✅ |
+| [`use_wc`](#chips) | list | ✅ |
+| [`vcap_weight`](#scoring--objective-function) | float | ❌ |
+| [`verbose`](#output) | bool | ✅ |
+| [`xmin_lb`](#player-pool-filtering) | int | ✅ |
