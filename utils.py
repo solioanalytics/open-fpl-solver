@@ -1,9 +1,18 @@
 import json
 import random
 import string
+import time
 from itertools import product
+from pathlib import Path
+
+import requests
 
 from paths import DATA_DIR
+
+# Cache configuration
+CACHE_DIR = Path(__file__).parent / ".cache"
+CACHE_FILE = CACHE_DIR / "http_cache.json"
+CACHE_EXPIRATION = 300
 
 
 def load_settings():
@@ -63,3 +72,63 @@ def load_config_files(config_paths):
             print(f"Warning: Configuration file {stripped_path} is not valid JSON")
 
     return merged_config
+
+
+def cached_request(url):
+    """
+    Fetch data from URL with caching support.
+    Returns cached data if available and not expired (< 24 hours old).
+    Otherwise fetches fresh data, updates cache, and returns the data.
+
+    Args:
+        url: The URL to fetch data from
+
+    Returns:
+        dict: JSON response from the URL
+    """
+    # Create cache directory if it doesn't exist
+    CACHE_DIR.mkdir(exist_ok=True)
+
+    # Load existing cache
+    cache = {}
+    if CACHE_FILE.exists():
+        try:
+            with open(CACHE_FILE) as f:
+                cache = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            # If cache is corrupted, start fresh
+            cache = {}
+
+    # Check if URL is in cache and not expired
+    current_time = time.time()
+    if url in cache:
+        cached_entry = cache[url]
+        timestamp = cached_entry.get("timestamp", 0)
+        if current_time - timestamp < CACHE_EXPIRATION:
+            # Cache is still valid
+            return cached_entry["data"]
+
+    # Cache miss or expired - fetch fresh data
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+
+        # Update cache
+        cache[url] = {
+            "data": data,
+            "timestamp": current_time
+        }
+
+        # Save cache to file
+        with open(CACHE_FILE, "w") as f:
+            json.dump(cache, f, indent=2)
+
+        return data
+
+    except requests.RequestException as e:
+        # If network request fails and we have expired cache, return it anyway
+        if url in cache:
+            print(f"Warning: Failed to fetch {url}, using expired cache. Error: {e}")
+            return cache[url]["data"]
+        raise
