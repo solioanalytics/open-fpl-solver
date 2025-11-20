@@ -12,7 +12,7 @@ from paths import DATA_DIR
 # Cache configuration
 CACHE_DIR = Path(__file__).parent / ".cache"
 CACHE_FILE = CACHE_DIR / "http_cache.json"
-CACHE_EXPIRATION = 86400  # 24 hours in seconds
+CACHE_EXPIRATION = 300
 
 
 def load_settings():
