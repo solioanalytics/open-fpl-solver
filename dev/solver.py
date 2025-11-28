@@ -1,4 +1,5 @@
 import os
+import sys
 import subprocess
 import threading
 import time
@@ -286,6 +287,39 @@ def solve_multi_period_fpl(data, options):
     # wc_limit = options.get('wc_limit', 0)
     ft_value = options.get("ft_value", 1.5)
     ft_value_list = options.get("ft_value_list", {})
+    # handle flat and nested ft value lists
+    base_ft_values = {}
+    range_rules = []
+    is_nested = "base" in ft_value_list or any("->" in str(k) for k in ft_value_list)
+    # if the ft_value_list is a flat dictionary, treat it as the base value list
+    if not is_nested:
+        base_ft_values = ft_value_list
+    else:
+        # if it is nested, require a "base" element and optionally, ranges/singular gameweeks
+        for key, val in ft_value_list.items():
+            key_str = str(key)
+
+            if key_str == "base":
+                base_ft_values = val
+            elif "->" in key_str:
+                # handle `X->Y`
+                try:
+                    start, end = map(int, key_str.split("->"))
+                    range_rules.append((start, end, val))
+                except ValueError:
+                    print(f"Could not parse '{key}' range")
+            else:
+                # handle `X` as a singular gameweek input (same as `X->X`)
+                try:
+                    s = int(key_str)
+                    range_rules.append((s, s, val))
+                except ValueError:
+                    pass
+
+    # if ft_value_list is provided, but base_ft_values is not populated, a base element was not found inside the nested dictionary
+    if ft_value_list and not base_ft_values:
+        print("ft_value_list must contain a \"base\" element when it is nested.")
+        sys.exit(0)
     # ft_gw_value = {}
     ft_use_penalty = options.get("ft_use_penalty", None)
     itb_value = options.get("itb_value", 0.08)
@@ -853,12 +887,28 @@ def solve_multi_period_fpl(data, options):
         model.add_constraints((num_transfers[w] <= SQUAD_SIZE * use_wc[w] for w in gws), name="wc_trs_only")
 
     # FT gain
-    ft_state_value = {}
-    for s in ft_states:
-        ft_state_value[s] = ft_state_value.get(s - 1, 0) + ft_value_list.get(str(s), ft_value)
-    # print(f"Using FT state values of {ft_state_value}")
-    print(f"Using FT values of {ft_value_list}")
-    gw_ft_value = {w: so.expr_sum(ft_state_value[s] * fts_state[w, s] for s in ft_states) for w in gws}
+    gw_ft_value = {}
+    for w in gws:
+        # initialize with base values
+        current_values = base_ft_values.copy()
+
+        # if `w` is within a defined range, override the base values with the range values
+        for r_start, r_end, r_vals in range_rules:
+            if r_start <= w <= r_end:
+                current_values.update(r_vals)
+
+        # state values are gameweek specific
+        current_ft_state_values = {}
+        for s in ft_states:
+            val = current_values.get(str(s), ft_value)
+
+            prev = current_ft_state_values.get(s - 1, 0)
+            current_ft_state_values[s] = prev + val
+
+        gw_ft_value[w] = so.expr_sum(
+            current_ft_state_values[s] * fts_state[w, s] for s in ft_states
+        )
+
     gw_ft_gain = {w: gw_ft_value[w] - gw_ft_value.get(w - 1, 0) for w in gws}
 
     # Objectives
