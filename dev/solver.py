@@ -35,20 +35,24 @@ def generate_team_json(team_id, options):
         next_gw = next(x for x in static["events"] if x["is_next"])["id"]
 
         start_prices = {x["id"]: x["now_cost"] - x["cost_change_start"] for x in static["elements"]}
-        gw1_url = f"{BASE_URL}/entry/{team_id}/event/1/picks/"
-        gw1 = session.get(gw1_url).json()
 
         transfers_url = f"{BASE_URL}/entry/{team_id}/transfers/"
-        transfers = session.get(transfers_url).json()[::-1]
+        transfers = cached_request(transfers_url)
 
-        chips_url = f"{BASE_URL}/entry/{team_id}/history/"
-        chips = session.get(chips_url).json()["chips"]
+        history_url = f"{BASE_URL}/entry/{team_id}/history/"
+        history = cached_request(history_url)
+        chips = history["chips"]
         fh_gws = [x["event"] for x in chips if x["name"] == "freehit"]
         wc_gws = [x["event"] for x in chips if x["name"] == "wildcard"]
 
+        # find out the first gameweek that the user played in - don't assume gw1
+        first_gw = history["current"][0]["event"]
+        first_gw_url = f"{BASE_URL}/entry/{team_id}/event/{first_gw}/picks/"
+        first_gw_data = cached_request(first_gw_url)
+
     # squad will remain an ID:puchase_price map throughout iteration over transfers
     # once they have been iterated through, can then add on the current selling price
-    squad = {x["element"]: start_prices[x["element"]] for x in gw1["picks"]}
+    squad = {x["element"]: start_prices[x["element"]] for x in first_gw_data["picks"]}
 
     itb = 1000 - sum(squad.values())
     for t in transfers:
@@ -61,7 +65,7 @@ def generate_team_json(team_id, options):
         if t["element_out"]:
             del squad[t["element_out"]]
 
-    fts = calculate_fts(transfers, next_gw, fh_gws, wc_gws)
+    fts = calculate_fts(transfers, first_gw, next_gw, fh_gws, wc_gws)
     my_data = {"chips": chips, "picks": [], "team_id": team_id, "transfers": {"bank": itb, "limit": fts, "made": 0}}
     for player_id, purchase_price in squad.items():
         now_cost = next(x for x in static["elements"] if x["id"] == player_id)["now_cost"]
@@ -79,13 +83,13 @@ def generate_team_json(team_id, options):
     return my_data
 
 
-def calculate_fts(transfers, next_gw, fh_gws, wc_gws):
+def calculate_fts(transfers, first_gw, next_gw, fh_gws, wc_gws):
     n_transfers = dict.fromkeys(range(2, next_gw), 0)
     for t in transfers:
         n_transfers[t["event"]] += 1
-    fts = dict.fromkeys(range(2, next_gw + 1), 0)
-    fts[2] = 1
-    for i in range(3, next_gw + 1):
+    fts = dict.fromkeys(range(first_gw + 1, next_gw + 1), 0)
+    fts[first_gw + 1] = 1
+    for i in range(first_gw + 2, next_gw + 1):
         if (i - 1) in fh_gws:
             fts[i] = fts[i - 1]
             continue
