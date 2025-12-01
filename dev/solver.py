@@ -37,7 +37,7 @@ def generate_team_json(team_id, options):
         start_prices = {x["id"]: x["now_cost"] - x["cost_change_start"] for x in static["elements"]}
 
         transfers_url = f"{BASE_URL}/entry/{team_id}/transfers/"
-        transfers = cached_request(transfers_url)
+        transfers = cached_request(transfers_url)[::-1]
 
         history_url = f"{BASE_URL}/entry/{team_id}/history/"
         history = cached_request(history_url)
