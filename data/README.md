@@ -242,7 +242,7 @@ For a complete listing of all settings and their default values, see [`comprehen
 | [`banned`](#player-constraints) | list | ✅ |
 | [`banned_next_gw`](#player-management-advanced) | list | ❌ |
 | [`bench_weights`](#scoring--objective-function) | dict | ❌ |
-| [`binary_files`](#binary-files-advanced) | dict | ❌ |
+| [`binary_file_weights`](#binary-files-advanced) | dict | ❌ |
 | [`booked_transfers`](#transfer--hit-management) | list | ❌ |
 | [`chip_limits`](#chip-management) | dict | ❌ |
 | [`data_weights`](#data-sources) | dict | ❌ |
