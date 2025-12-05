@@ -226,8 +226,8 @@ These settings provide fine-grained control over the optimization. Most users wo
   - Example: `"solutions_file_player_type": "name"`
 
 ### Binary Files (Advanced)
-- `binary_files`: configure binary file names, weights, and team-level fixture settings
-  - Example: `"binary_files": {"fplreview_binary_1.csv": 0.6, "fplreview_binary_2.csv": 0.3, "fplreview_binary_3.csv": 0.1}`
+- `binary_file_weights`: configure binary file names and weights
+  - Example: `"binary_file_weights": {"binary_1.csv": 0.6, "binary_2.csv": 0.3, "binary_3.csv": 0.1}`
 - `generate_binary_files`: if `true`, generate binary files based on fixture settings
   - Example: `"generate_binary_files": false`
 
