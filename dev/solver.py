@@ -9,7 +9,6 @@ from pathlib import Path
 import highspy
 import numpy as np
 import pandas as pd
-import requests
 import sasoptpy as so
 
 from dev.data_parser import read_data
@@ -25,30 +24,30 @@ SQUAD_SIZE = 15
 LINEUP_SIZE = 11
 MAX_GAMEWEEK = 38
 MAX_PLAYERS_PER_TEAM = 3
+AFCON_GW = 16
 
 
 def generate_team_json(team_id, options):
-    with requests.Session() as session:
-        static_url = f"{BASE_URL}/bootstrap-static/"
-        static = cached_request(static_url)
-        element_to_type_dict = {x["id"]: x["element_type"] for x in static["elements"]}
-        next_gw = next(x for x in static["events"] if x["is_next"])["id"]
+    static_url = f"{BASE_URL}/bootstrap-static/"
+    static = cached_request(static_url)
+    element_to_type_dict = {x["id"]: x["element_type"] for x in static["elements"]}
+    next_gw = next(x for x in static["events"] if x["is_next"])["id"]
 
-        start_prices = {x["id"]: x["now_cost"] - x["cost_change_start"] for x in static["elements"]}
+    start_prices = {x["id"]: x["now_cost"] - x["cost_change_start"] for x in static["elements"]}
 
-        transfers_url = f"{BASE_URL}/entry/{team_id}/transfers/"
-        transfers = cached_request(transfers_url)[::-1]
+    transfers_url = f"{BASE_URL}/entry/{team_id}/transfers/"
+    transfers = cached_request(transfers_url)[::-1]
 
-        history_url = f"{BASE_URL}/entry/{team_id}/history/"
-        history = cached_request(history_url)
-        chips = history["chips"]
-        fh_gws = [x["event"] for x in chips if x["name"] == "freehit"]
-        wc_gws = [x["event"] for x in chips if x["name"] == "wildcard"]
+    history_url = f"{BASE_URL}/entry/{team_id}/history/"
+    history = cached_request(history_url)
+    chips = history["chips"]
+    fh_gws = [x["event"] for x in chips if x["name"] == "freehit"]
+    wc_gws = [x["event"] for x in chips if x["name"] == "wildcard"]
 
-        # find out the first gameweek that the user played in - don't assume gw1
-        first_gw = history["current"][0]["event"]
-        first_gw_url = f"{BASE_URL}/entry/{team_id}/event/{first_gw}/picks/"
-        first_gw_data = cached_request(first_gw_url)
+    # find out the first gameweek that the user played in - don't assume gw1
+    first_gw = history["current"][0]["event"]
+    first_gw_url = f"{BASE_URL}/entry/{team_id}/event/{first_gw}/picks/"
+    first_gw_data = cached_request(first_gw_url)
 
     # squad will remain an ID:puchase_price map throughout iteration over transfers
     # once they have been iterated through, can then add on the current selling price
@@ -90,6 +89,9 @@ def calculate_fts(transfers, first_gw, next_gw, fh_gws, wc_gws):
     fts = dict.fromkeys(range(first_gw + 1, next_gw + 1), 0)
     fts[first_gw + 1] = 1
     for i in range(first_gw + 2, next_gw + 1):
+        if i == AFCON_GW:
+            fts[i] = 5
+            continue
         if (i - 1) in fh_gws:
             fts[i] = fts[i - 1]
             continue
@@ -476,8 +478,7 @@ def solve_multi_period_fpl(data, options):
     # raw_gw_ft = {w: fts[w] - transfer_count[w] + 1 - use_wc[w] - use_fh[w] for w in gws}
 
     # 2056-26 afcon variation: always have 5 ft in gw16 no matter what
-    afcon_gw = 15
-    raw_gw_ft = {w: fts[w] - transfer_count[w] + (5 if w == afcon_gw else 1) - use_wc[w] - use_fh[w] for w in gws}
+    raw_gw_ft = {w: fts[w] - transfer_count[w] + (5 if w == AFCON_GW - 1 else 1) - use_wc[w] - use_fh[w] for w in gws}
     m = 20  # big m for bounding constraints, picked 20 because nobody will ever get to 20 ft in a solve
 
     # FT_BELOW_LB AND FT_ABOVE_UB LOGIC
