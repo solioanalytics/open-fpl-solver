@@ -46,8 +46,8 @@ Open a terminal (search for *Command Prompt* in Windows) and run:
 
 ```bash
 cd Documents
-git clone https://github.com/sertalpbilal/FPL-Optimization-Tools
-cd FPL-Optimization-Tools
+git clone https://github.com/solioanalytics/open-fpl-solver.git
+cd open-fpl-solver
 ```
 
 ### 4. Install Dependencies
