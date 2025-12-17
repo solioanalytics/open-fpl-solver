@@ -911,7 +911,7 @@ def solve_multi_period_fpl(data, options):
         tmp_folder = Path() / "tmp"
         tmp_folder.mkdir(exist_ok=True, parents=True)
         model.export_mps(mps_file_name)
-        print(f"Exported problem with name: {problem_name}_{problem_id}_{iteration}")
+        print(f"Exported model with name: {problem_name}_{problem_id}_{iteration}")
 
         if options.get("export_debug", False):
             with open("debug.sas", "w") as file:
