@@ -1,6 +1,5 @@
 import argparse
 import json
-import re
 import time
 from concurrent.futures import ProcessPoolExecutor
 
@@ -28,12 +27,13 @@ def get_options_from_args(options):
 
 def setup_binary_files():
     settings = load_settings()
+    source = settings.get("datasource", {})
     if settings.get("generate_binary_files"):
         print("Generating binary files")
         binary_fixture_settings = settings.get("binary_fixture_settings", {})
         if not binary_fixture_settings:
             raise ValueError("Your `binary_fixture_settings` setting is empty!")
-        file_path = DATA_DIR / "original.csv"
+        file_path = DATA_DIR / f"{source}.csv"
         generate_binary_files(file_path, binary_fixture_settings)
     return settings
 
@@ -134,7 +134,6 @@ if __name__ == "__main__":
         if args.use_binaries:
             options["use_binaries"] = args.use_binaries
 
-        # Parse unknown arguments and add them to runtime_options
         options["runtime_options"] = parse_unknown_arguments(unknown)
 
     except Exception:
