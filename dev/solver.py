@@ -318,9 +318,7 @@ def solve_multi_period_fpl(data, options):
     fixtures = data["fixtures"]
     if preseason:
         itb = 100
-        threshold_gw = 2
-    else:
-        threshold_gw = next_gw
+        initial_ft = 0
 
     # Sets
     players = merged_data.index.to_list()
@@ -508,8 +506,6 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((fts[w] == so.expr_sum(fts_state[w, s] * s for s in ft_states) for w in gws), name="ftsc1")
     model.add_constraints((so.expr_sum(fts_state[w, s] for s in ft_states) == 1 for w in gws), name="ftsc2")
 
-    if preseason and threshold_gw in gws:
-        model.add_constraint(fts[threshold_gw] == 1, name="ps_initial_ft")
     model.add_constraints((penalized_transfers[w] >= transfer_diff[w] for w in gws), name="pen_transfer_rel")
 
     ## Chip constraints
