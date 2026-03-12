@@ -292,7 +292,7 @@ def write_line_to_file(filename, result, options):
         "datetime",
     ]
 
-    data = [run_id, iteration, team_id, datasource * chips, *squad, cap, vcap, sell_text, buy_text, score, t]
+    data = [run_id, iteration, team_id, datasource, *chips, *squad, cap, vcap, sell_text, buy_text, score, t]
     if options.get("save_squads", False):
         headers.append("summary")
         data.append(result["summary"])
