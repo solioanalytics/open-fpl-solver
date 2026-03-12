@@ -249,6 +249,7 @@ def write_line_to_file(filename, result, options):
     run_id = options["run_id"]
     iteration = result["iter"]
     team_id = options.get("team_id")
+    datasource = options.get("datasource")
     chips = [",".join(map(str, options.get(x, []))) for x in ["use_wc", "use_bb", "use_fh", "use_tc"]]
 
     squad = picks.loc[(picks["week"] == gw) & ((picks["lineup"] == 1) | (picks["bench"] >= 0))].sort_values(
@@ -277,6 +278,7 @@ def write_line_to_file(filename, result, options):
         "run_id",
         "iter",
         "user_id",
+        "datasource",
         "wc",
         "bb",
         "fh",
@@ -290,7 +292,7 @@ def write_line_to_file(filename, result, options):
         "datetime",
     ]
 
-    data = [run_id, iteration, team_id, *chips, *squad, cap, vcap, sell_text, buy_text, score, t]
+    data = [run_id, iteration, team_id, datasource * chips, *squad, cap, vcap, sell_text, buy_text, score, t]
     if options.get("save_squads", False):
         headers.append("summary")
         data.append(result["summary"])
