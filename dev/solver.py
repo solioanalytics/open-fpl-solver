@@ -901,6 +901,10 @@ def solve_multi_period_fpl(data, options):
 
     num_iterations = options.get("num_iterations", 1)
     iteration_criteria = options.get("iteration_criteria", "this_gw_transfer_in")
+
+    # fix for multiple iterations when free-hitting next gameweek
+    if iteration_criteria in {"this_gw_transfer_in", "this_gw_transfer_in_out"} and next_gw in options.get("use_fh", []):
+        iteration_criteria = "this_gw_lineup"
     solutions = []
 
     for iteration in range(num_iterations):
