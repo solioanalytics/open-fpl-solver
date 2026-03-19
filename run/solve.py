@@ -212,7 +212,8 @@ def solve_regular(runtime_options=None):
         print("\n\n")
 
     if solutions_file := options.get("solutions_file"):
-        write_line_to_file(solutions_file, result, options)
+        for result in response:
+            write_line_to_file(solutions_file, result, options)
 
     return result_table
 
