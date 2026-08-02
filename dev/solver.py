@@ -3,20 +3,16 @@ import shlex
 import subprocess
 import threading
 import time
-import warnings
 from collections import Counter
 from pathlib import Path
+from typing import cast
 
 import highspy
 import numpy as np
 import pandas as pd
-import sasoptpy as so
 
 from dev.data_parser import read_data
 from utils import cached_request, get_random_id
-
-warnings.filterwarnings("ignore", category=FutureWarning, module="sasoptpy")
-
 
 BINARY_THRESHOLD = 0.5  # threshold value for evaluating binary variables
 BASE_URL = "https://fantasy.premierleague.com/api"
@@ -25,6 +21,11 @@ SQUAD_SIZE = 15
 LINEUP_SIZE = 11
 MAX_GAMEWEEK = 38
 MAX_PLAYERS_PER_TEAM = 3
+
+# HiGHS has no distinct binary type - binaries are integers bounded to [0, 1]
+BIN = highspy.HighsVarType.kInteger
+INT = highspy.HighsVarType.kInteger
+CONT = highspy.HighsVarType.kContinuous
 
 
 def generate_team_json(team_id, options):
@@ -146,8 +147,11 @@ def prep_data(my_data, options):
     original_keys = merged_data.columns.to_list()
     keys = [k for k in original_keys if "_Pts" in k]
     min_keys = [k for k in original_keys if "_xMins" in k]
-    merged_data["total_ev"] = merged_data[keys].sum(axis=1)
-    merged_data["total_min"] = merged_data[min_keys].sum(axis=1)
+    totals = pd.DataFrame(
+        {"total_ev": merged_data[keys].sum(axis=1), "total_min": merged_data[min_keys].sum(axis=1)},
+        index=merged_data.index,
+    )
+    merged_data = pd.concat([merged_data, totals], axis=1)
 
     merged_data.sort_values(by=["total_ev"], ascending=[False], inplace=True)
 
@@ -157,7 +161,7 @@ def prep_data(my_data, options):
         if vals is None or vals == "":
             continue
         price_vals = [float(i) for i in vals.split(",")]
-        pp = merged_data[(merged_data["Pos"] == pos) & ((merged_data["now_cost"] / 10).isin(price_vals))]["ID"].to_list()
+        pp = merged_data[(merged_data["Pos"] == pos) & (merged_data["now_cost"].div(10).isin(price_vals))]["ID"].to_list()
         safe_players_due_price += pp
 
     # Filter players by total EV
@@ -181,8 +185,9 @@ def prep_data(my_data, options):
     # Filter by ev per price
     ev_per_price_cutoff = options.get("ev_per_price_cutoff", 0)
     if ev_per_price_cutoff != 0:
-        cutoff = (merged_data["total_ev"] / merged_data["now_cost"]).quantile(ev_per_price_cutoff / 100)
-        merged_data = merged_data[(merged_data["total_ev"] / merged_data["now_cost"] > cutoff) | (merged_data["ID"].isin(safe_players))].copy()
+        ev_per_price = merged_data["total_ev"].div(merged_data["now_cost"])
+        cutoff = ev_per_price.quantile(ev_per_price_cutoff / 100)
+        merged_data = merged_data[(ev_per_price > cutoff) | (merged_data["ID"].isin(safe_players))].copy()
 
     num_players_after = len(merged_data)
     print(f"Filtered player pool from {num_players_before} to {num_players_after} players")
@@ -196,7 +201,7 @@ def prep_data(my_data, options):
 
     type_data = pd.DataFrame(fpl_data["element_types"]).set_index(["id"])
 
-    buy_price = (merged_data["now_cost"] / 10).to_dict()
+    buy_price = merged_data["now_cost"].div(10).to_dict()
     sell_price = {i["element"]: i["selling_price"] / 10 for i in my_data["picks"]}
     price_modified_players = []
 
@@ -279,17 +284,14 @@ def solve_multi_period_fpl(data, options):
     except Exception:
         pass
 
-    # Arguments
     problem_id = get_random_id(5)
     horizon = options.get("horizon", 3)
     objective = options.get("objective", "decay")
     decay_base = options.get("decay_base", 0.84)
     bench_weights = options.get("bench_weights", {0: 0.03, 1: 0.21, 2: 0.06, 3: 0.002})
     bench_weights = {int(key): value for (key, value) in bench_weights.items()}
-    # wc_limit = options.get('wc_limit', 0)
     ft_value = options.get("ft_value", 1.5)
     ft_value_list = options.get("ft_value_list", {})
-    # ft_gw_value = {}
     ft_use_penalty = options.get("ft_use_penalty", None)
     itb_value = options.get("itb_value", 0.08)
     initial_ft = max(0, data.get("ft", 1))
@@ -304,7 +306,6 @@ def solve_multi_period_fpl(data, options):
         itb_loss_per_transfer = 0
     weekly_hit_limit = options.get("weekly_hit_limit", None)
 
-    # Data
     problem_name = f"mp_h{horizon}_regular" if objective == "regular" else f"mp_h{horizon}_o{objective[0]}_d{decay_base}"
     merged_data = data["merged_data"]
     team_data = data["team_data"]
@@ -318,7 +319,6 @@ def solve_multi_period_fpl(data, options):
         itb = 100
         initial_ft = 0
 
-    # Sets
     players = merged_data.index.to_list()
     el_types = type_data.index.to_list()
     teams = team_data["name"].to_list()
@@ -333,264 +333,255 @@ def solve_multi_period_fpl(data, options):
     ft_states = [0, 1, 2, 3, 4, 5]
 
     # Model
-    model = so.Model(name=problem_name)
+    m = highspy.Highs()
+    sum_ = m.qsum
+    verbose = options.get("verbose", False)
+    m.setOptionValue("output_flag", bool(verbose))
+
+    def bin_vars(*sets, name):
+        return m.addVariables(*sets, lb=0, ub=1, type=BIN, name_prefix=name)
+
+    def int_vars(*sets, name, lb=0, ub=None):
+        kwargs = {"lb": lb, "type": INT, "name_prefix": name}
+        if ub is not None:
+            kwargs["ub"] = ub
+        return m.addVariables(*sets, **kwargs)
+
+    def cont_vars(*sets, name, lb=0, ub=None):
+        kwargs = {"lb": lb, "type": CONT, "name_prefix": name}
+        if ub is not None:
+            kwargs["ub"] = ub
+        return m.addVariables(*sets, **kwargs)
 
     # Variables
-    squad = model.add_variables(players, all_gw, name="squad", vartype=so.binary)
-    squad_fh = model.add_variables(players, gws, name="squad_fh", vartype=so.binary)
-    lineup = model.add_variables(players, gws, name="lineup", vartype=so.binary)
-    captain = model.add_variables(players, gws, name="captain", vartype=so.binary)
-    vicecap = model.add_variables(players, gws, name="vicecap", vartype=so.binary)
-    bench = model.add_variables(players, gws, order, name="bench", vartype=so.binary)
-    transfer_in = model.add_variables(players, gws, name="transfer_in", vartype=so.binary)
-    transfer_out_first = model.add_variables(price_modified_players, gws, name="tr_out_first", vartype=so.binary)
-    transfer_out_regular = model.add_variables(players, gws, name="tr_out_reg", vartype=so.binary)
+    squad = bin_vars(players, all_gw, name="squad")
+    squad_fh = bin_vars(players, gws, name="squad_fh")
+    lineup = bin_vars(players, gws, name="lineup")
+    captain = bin_vars(players, gws, name="captain")
+    vicecap = bin_vars(players, gws, name="vicecap")
+    bench = bin_vars(players, gws, order, name="bench")
+    transfer_in = bin_vars(players, gws, name="transfer_in")
+    transfer_out_first = bin_vars(price_modified_players, gws, name="tr_out_first")
+    transfer_out_regular = bin_vars(players, gws, name="tr_out_reg")
     transfer_out = {
         (p, w): transfer_out_regular[p, w] + (transfer_out_first[p, w] if p in price_modified_players else 0) for p in players for w in gws
     }
-    in_the_bank = model.add_variables(all_gw, name="itb", vartype=so.continuous, lb=0)
-    fts = model.add_variables(all_gw, name="ft", vartype=so.integer, lb=0, ub=5)
-    ft_above_ub = model.add_variables(gws, name="ft_above", vartype=so.binary)
-    ft_below_lb = model.add_variables(gws, name="ft_below", vartype=so.binary)
-    fts_state = model.add_variables(gws, ft_states, name="ft_state", vartype=so.binary)
-    penalized_transfers = model.add_variables(gws, name="pt", vartype=so.integer, lb=0)
-    aux = model.add_variables(gws, name="aux", vartype=so.binary)
-    transfer_count = model.add_variables(gws, name="trc", vartype=so.integer, lb=0, ub=SQUAD_SIZE)
+    in_the_bank = cont_vars(all_gw, name="itb", lb=0)
+    fts = int_vars(all_gw, name="ft", lb=0, ub=5)
+    ft_above_ub = bin_vars(gws, name="ft_above")
+    ft_below_lb = bin_vars(gws, name="ft_below")
+    fts_state = bin_vars(gws, ft_states, name="ft_state")
+    penalized_transfers = int_vars(gws, name="pt", lb=0)
+    aux = bin_vars(gws, name="aux")
+    transfer_count = int_vars(gws, name="trc", lb=0, ub=SQUAD_SIZE)
 
-    use_wc = model.add_variables(gws, name="use_wc", vartype=so.binary)
-    use_bb = model.add_variables(gws, name="use_bb", vartype=so.binary)
-    use_fh = model.add_variables(gws, name="use_fh", vartype=so.binary)
-    use_tc = model.add_variables(players, gws, name="use_tc", vartype=so.binary)
+    use_wc = bin_vars(gws, name="use_wc")
+    use_bb = bin_vars(gws, name="use_bb")
+    use_fh = bin_vars(gws, name="use_fh")
+    use_tc = bin_vars(players, gws, name="use_tc")
 
     # Dictionaries
     player_type = merged_data["element_type"].to_dict()
     player_pos = merged_data["Pos"].to_dict()
-    lineup_type_count = {(t, w): so.expr_sum(lineup[p, w] for p in players if player_type[p] == t) for t in el_types for w in gws}
-    squad_type_count = {(t, w): so.expr_sum(squad[p, w] for p in players if player_type[p] == t) for t in el_types for w in gws}
-    squad_fh_type_count = {
-        (t, w): so.expr_sum(squad_fh[p, w] for p in players if player_type[p] == t) for t in el_types for w in gws
-    }
-    # player_price = (merged_data['now_cost'] / 10).to_dict()
+    lineup_type_count = {(t, w): sum_(lineup[p, w] for p in players if player_type[p] == t) for t in el_types for w in gws}
+    squad_type_count = {(t, w): sum_(squad[p, w] for p in players if player_type[p] == t) for t in el_types for w in gws}
+    squad_fh_type_count = {(t, w): sum_(squad_fh[p, w] for p in players if player_type[p] == t) for t in el_types for w in gws}
     sell_price = data["sell_price"]
     buy_price = data["buy_price"]
     sold_amount = {
         w: (
-            so.expr_sum(sell_price[p] * transfer_out_first[p, w] for p in price_modified_players)
-            + so.expr_sum(buy_price[p] * transfer_out_regular[p, w] for p in players)
+            sum_(sell_price[p] * transfer_out_first[p, w] for p in price_modified_players)
+            + sum_(buy_price[p] * transfer_out_regular[p, w] for p in players)
         )
         for w in gws
     }
     fh_sell_price = {p: sell_price[p] if p in price_modified_players else buy_price[p] for p in players}
-    bought_amount = {w: so.expr_sum(buy_price[p] * transfer_in[p, w] for p in players) for w in gws}
+    bought_amount = {w: sum_(buy_price[p] * transfer_in[p, w] for p in players) for w in gws}
     pts_by_week = {w: merged_data[f"{w}_Pts"].to_dict() for w in gws}
     xmins_by_week = {w: merged_data[f"{w}_xMins"].to_dict() for w in gws}
     points_player_week = {(p, w): pts_by_week[w][p] for p in players for w in gws}
     minutes_player_week = {(p, w): xmins_by_week[w][p] for p in players for w in gws}
     player_team = merged_data["name"].to_dict()
-    squad_count = {w: so.expr_sum(squad[p, w] for p in players) for w in gws}
-    squad_fh_count = {w: so.expr_sum(squad_fh[p, w] for p in players) for w in gws}
-    num_transfers = {w: so.expr_sum(transfer_out[p, w] for p in players) for w in gws}
+    squad_count = {w: sum_(squad[p, w] for p in players) for w in gws}
+    squad_fh_count = {w: sum_(squad_fh[p, w] for p in players) for w in gws}
+    num_transfers = {w: sum_(transfer_out[p, w] for p in players) for w in gws}
     transfer_diff = {w: num_transfers[w] - fts[w] - SQUAD_SIZE * use_wc[w] for w in gws}
-    use_tc_gw = {w: so.expr_sum(use_tc[p, w] for p in players) for w in gws}
+    use_tc_gw = {w: sum_(use_tc[p, w] for p in players) for w in gws}
 
     # Initial conditions
-    model.add_constraints((squad[p, next_gw - 1] == 1 for p in initial_squad), name="initial_squad_players")
-    model.add_constraints((squad[p, next_gw - 1] == 0 for p in players if p not in initial_squad), name="initial_squad_others")
-    model.add_constraint(in_the_bank[next_gw - 1] == itb, name="initial_itb")
-    model.add_constraint(fts[next_gw] == initial_ft * (1 - use_wc[next_gw]) + ft_base * use_wc[next_gw], name="initial_ft")
-    model.add_constraints((fts[w] >= 1 for w in gws if w > next_gw), name="future_ft_limit")
+    m.addConstrs([squad[p, next_gw - 1] == 1 for p in initial_squad])
+    m.addConstrs([squad[p, next_gw - 1] == 0 for p in players if p not in initial_squad])
+    m.addConstr(in_the_bank[next_gw - 1] == itb)
+    m.addConstr(fts[next_gw] == initial_ft * (1 - use_wc[next_gw]) + ft_base * use_wc[next_gw])
+    m.addConstrs([fts[w] >= 1 for w in gws if w > next_gw])
 
     # Constraints
-    model.add_constraints((squad_count[w] == SQUAD_SIZE for w in gws), name="squad_count")
-    model.add_constraints((squad_fh_count[w] == SQUAD_SIZE * use_fh[w] for w in gws), name="squad_fh_count")
-    model.add_constraints(
-        (so.expr_sum(lineup[p, w] for p in players) == LINEUP_SIZE + (SQUAD_SIZE - LINEUP_SIZE) * use_bb[w] for w in gws), name="lineup_count"
-    )
-    model.add_constraints((so.expr_sum(bench[p, w, 0] for p in players if player_type[p] == 1) == 1 - use_bb[w] for w in gws), name="bench_gk")
-    model.add_constraints((so.expr_sum(bench[p, w, o] for p in players) == 1 - use_bb[w] for w in gws for o in [1, 2, 3]), name="bench_count")
-    model.add_constraints((so.expr_sum(captain[p, w] for p in players) == 1 for w in gws), name="captain_count")
-    model.add_constraints((so.expr_sum(vicecap[p, w] for p in players) == 1 for w in gws), name="vicecap_count")
-    model.add_constraints((lineup[p, w] <= squad[p, w] + use_fh[w] for p in players for w in gws), name="lineup_squad_rel")
-    model.add_constraints((bench[p, w, o] <= squad[p, w] + use_fh[w] for p in players for w in gws for o in order), name="bench_squad_rel")
-    model.add_constraints((lineup[p, w] <= squad_fh[p, w] + 1 - use_fh[w] for p in players for w in gws), name="lineup_squad_fh_rel")
-    model.add_constraints((bench[p, w, o] <= squad_fh[p, w] + 1 - use_fh[w] for p in players for w in gws for o in order), name="bench_squad_fh_rel")
-    model.add_constraints((captain[p, w] <= lineup[p, w] for p in players for w in gws), name="captain_lineup_rel")
-    model.add_constraints((vicecap[p, w] <= lineup[p, w] for p in players for w in gws), name="vicecap_lineup_rel")
-    model.add_constraints((captain[p, w] + vicecap[p, w] <= 1 for p in players for w in gws), name="cap_vc_rel")
-    model.add_constraints((lineup[p, w] + so.expr_sum(bench[p, w, o] for o in order) <= 1 for p in players for w in gws), name="lineup_bench_rel")
-    model.add_constraints((lineup_type_count[t, w] >= type_data.loc[t, "squad_min_play"] for t in el_types for w in gws), name="valid_formation_lb")
-    model.add_constraints(
-        (lineup_type_count[t, w] <= type_data.loc[t, "squad_max_play"] + use_bb[w] for t in el_types for w in gws), name="valid_formation_ub"
-    )
-    model.add_constraints((squad_type_count[t, w] == type_data.loc[t, "squad_select"] for t in el_types for w in gws), name="valid_squad")
-    model.add_constraints(
-        (squad_fh_type_count[t, w] == type_data.loc[t, "squad_select"] * use_fh[w] for t in el_types for w in gws), name="valid_squad_fh"
-    )
+    m.addConstrs([squad_count[w] == SQUAD_SIZE for w in gws])
+    m.addConstrs([squad_fh_count[w] == SQUAD_SIZE * use_fh[w] for w in gws])
+    m.addConstrs([sum_(lineup[p, w] for p in players) == LINEUP_SIZE + (SQUAD_SIZE - LINEUP_SIZE) * use_bb[w] for w in gws])
+    m.addConstrs([sum_(bench[p, w, 0] for p in players if player_type[p] == 1) == 1 - use_bb[w] for w in gws])
+    m.addConstrs([sum_(bench[p, w, o] for p in players) == 1 - use_bb[w] for w in gws for o in [1, 2, 3]])
+    m.addConstrs([sum_(captain[p, w] for p in players) == 1 for w in gws])
+    m.addConstrs([sum_(vicecap[p, w] for p in players) == 1 for w in gws])
+    m.addConstrs([lineup[p, w] <= squad[p, w] + use_fh[w] for p in players for w in gws])
+    m.addConstrs([bench[p, w, o] <= squad[p, w] + use_fh[w] for p in players for w in gws for o in order])
+    m.addConstrs([lineup[p, w] <= squad_fh[p, w] + 1 - use_fh[w] for p in players for w in gws])
+    m.addConstrs([bench[p, w, o] <= squad_fh[p, w] + 1 - use_fh[w] for p in players for w in gws for o in order])
+    m.addConstrs([captain[p, w] <= lineup[p, w] for p in players for w in gws])
+    m.addConstrs([vicecap[p, w] <= lineup[p, w] for p in players for w in gws])
+    m.addConstrs([captain[p, w] + vicecap[p, w] <= 1 for p in players for w in gws])
+    m.addConstrs([lineup[p, w] + sum_(bench[p, w, o] for o in order) <= 1 for p in players for w in gws])
+    squad_min_play = type_data["squad_min_play"].astype(int).to_dict()
+    squad_max_play = type_data["squad_max_play"].astype(int).to_dict()
+    squad_select = type_data["squad_select"].astype(int).to_dict()
+    m.addConstrs([lineup_type_count[t, w] >= squad_min_play[t] for t in el_types for w in gws])
+    m.addConstrs([lineup_type_count[t, w] <= squad_max_play[t] + use_bb[w] for t in el_types for w in gws])
+    m.addConstrs([squad_type_count[t, w] == squad_select[t] for t in el_types for w in gws])
+    m.addConstrs([squad_fh_type_count[t, w] == squad_select[t] * use_fh[w] for t in el_types for w in gws])
 
-    # special case where user's current squad has too many players from the same team
-    # only works for 4 players from same team at the moment
     if data["max_players_from_team"] > MAX_PLAYERS_PER_TEAM:
-        no_transfer = model.add_variables(gws, vartype=so.binary, name="no_transfer")
-        model.add_constraints((transfer_count[w] <= SQUAD_SIZE * (1 - no_transfer[w]) for w in gws), name="no_transfer_1")
-        model.add_constraints((transfer_count[w] >= 1 - SQUAD_SIZE * no_transfer[w] for w in gws), name="no_transfer_2")
+        no_transfer = bin_vars(gws, name="no_transfer")
+        m.addConstrs([transfer_count[w] <= SQUAD_SIZE * (1 - no_transfer[w]) for w in gws])
+        m.addConstrs([transfer_count[w] >= 1 - SQUAD_SIZE * no_transfer[w] for w in gws])
+        m.addConstrs([sum_(squad[p, w] for p in players if player_team[p] == t) <= MAX_PLAYERS_PER_TEAM + no_transfer[w] for t in teams for w in gws])
+    else:
+        m.addConstrs([sum_(squad[p, w] for p in players if player_team[p] == t) <= MAX_PLAYERS_PER_TEAM for t in teams for w in all_gw])
 
-        model.add_constraints(
-            (so.expr_sum(squad[p, w] for p in players if player_team[p] == t) <= MAX_PLAYERS_PER_TEAM + no_transfer[w] for t in teams for w in gws),
-            name="team_limit",
-        )
+    m.addConstrs([sum_(squad_fh[p, w] for p in players if player_team[p] == t) <= MAX_PLAYERS_PER_TEAM * use_fh[w] for t in teams for w in gws])
 
-    else:  # normal case where user has a valid squad
-        model.add_constraints(
-            (so.expr_sum(squad[p, w] for p in players if player_team[p] == t) <= MAX_PLAYERS_PER_TEAM for t in teams for w in all_gw),
-            name="team_limit",
-        )
-
-    model.add_constraints(
-        (so.expr_sum(squad_fh[p, w] for p in players if player_team[p] == t) <= MAX_PLAYERS_PER_TEAM * use_fh[w] for t in teams for w in gws),
-        name="team_limit_fh",
-    )
     ## Transfer constraints
-    model.add_constraints(
-        (squad[p, w] == squad[p, w - 1] + transfer_in[p, w] - transfer_out[p, w] for p in players for w in gws), name="squad_transfer_rel"
-    )
-    model.add_constraints(
-        (
+    m.addConstrs([squad[p, w] == squad[p, w - 1] + transfer_in[p, w] - transfer_out[p, w] for p in players for w in gws])
+    m.addConstrs(
+        [
             in_the_bank[w]
             == in_the_bank[w - 1] + sold_amount[w] - bought_amount[w] - (transfer_count[w] * itb_loss_per_transfer if w > next_gw else 0)
             for w in gws
-        ),
-        name="cont_budget",
+        ]
     )
-    model.add_constraints(
-        (
-            so.expr_sum(fh_sell_price[p] * squad[p, w - 1] for p in players) + in_the_bank[w - 1]
-            >= so.expr_sum(fh_sell_price[p] * squad_fh[p, w] for p in players)
+    m.addConstrs(
+        [
+            sum_(fh_sell_price[p] * squad[p, w - 1] for p in players) + in_the_bank[w - 1] >= sum_(fh_sell_price[p] * squad_fh[p, w] for p in players)
             for w in gws
-        ),
-        name="fh_budget",
+        ]
     )
-    model.add_constraints((transfer_in[p, w] <= 1 - use_fh[w] for p in players for w in gws), name="no_tr_in_fh")
-    model.add_constraints((transfer_out[p, w] <= 1 - use_fh[w] for p in players for w in gws), name="no_tr_out_fh")
+    m.addConstrs([transfer_in[p, w] <= 1 - use_fh[w] for p in players for w in gws])
+    m.addConstrs([transfer_out[p, w] <= 1 - use_fh[w] for p in players for w in gws])
 
     ## Free transfer constraints
-    # min 1 / max 5 / roll over WC & FH
+    # Next week's FTs before clamping: what's left after this week's transfers, plus the 1 earned.
+    # A wildcard or free hit cancels that gain out, so the FT count carries over unchanged.
     raw_gw_ft = {w: fts[w] - transfer_count[w] + 1 - use_wc[w] - use_fh[w] for w in gws}
-    m = 20  # big m for bounding constraints, picked 20 because nobody will ever get to 20 ft in a solve
-
-    # FT_BELOW_LB AND FT_ABOVE_UB LOGIC
+    # Big-M only has to dominate the FT range, which is 0-5 plus transfers already made in current gw.
+    big_m = 20
 
     # ft_above_ub[w] == 1  <=>  raw_gw_ft[w] > 5
-    model.add_constraints((raw_gw_ft[w] >= 6 - m * (1 - ft_above_ub[w]) for w in gws), name="ft_above_ub_lb")
-    model.add_constraints((raw_gw_ft[w] <= 5 + m * ft_above_ub[w] for w in gws), name="ft_above_ub_ub")
+    m.addConstrs([raw_gw_ft[w] >= 6 - big_m * (1 - ft_above_ub[w]) for w in gws])
+    m.addConstrs([raw_gw_ft[w] <= 5 + big_m * ft_above_ub[w] for w in gws])
 
-    # ft_below_lb[w] == 1  <=>  raw_gw_ft[w] <= 0
-    model.add_constraints((raw_gw_ft[w] <= 0 + m * (1 - ft_below_lb[w]) for w in gws), name="ft_below_lb_ub")
-    model.add_constraints((raw_gw_ft[w] >= 1 - m * ft_below_lb[w] for w in gws), name="ft_below_lb_lb")
+    # ft_below_lb[w] == 1  <=>  raw_gw_ft[w] < 1
+    m.addConstrs([raw_gw_ft[w] <= 0 + big_m * (1 - ft_below_lb[w]) for w in gws])
+    m.addConstrs([raw_gw_ft[w] >= 1 - big_m * ft_below_lb[w] for w in gws])
 
-    # FREE TRANSFER LOGIC
+    # Clamp the raw count into [1, 5] to get the FTs actually available next week.
 
-    # raw_gw_ft[w] > 5 => fts[w+1] = 5
-    model.add_constraints((fts[w + 1] <= 5 + m * (1 - ft_above_ub[w]) for w in gws if w + 1 in gws), name="ft_cap_upper_ub")
-    model.add_constraints((fts[w + 1] >= 5 - m * (1 - ft_above_ub[w]) for w in gws if w + 1 in gws), name="ft_cap_upper_lb")
+    # ft_above_ub[w] == 1  =>  fts[w + 1] == 5
+    m.addConstrs([fts[w + 1] <= 5 + big_m * (1 - ft_above_ub[w]) for w in gws if w + 1 in gws])
+    m.addConstrs([fts[w + 1] >= 5 - big_m * (1 - ft_above_ub[w]) for w in gws if w + 1 in gws])
 
-    # raw_gw_ft[w] < 0 => fts[w+1] = 1
-    model.add_constraints((fts[w + 1] <= 1 + m * (1 - ft_below_lb[w]) for w in gws if w + 1 in gws), name="ft_cap_lower_ub")
-    model.add_constraints((fts[w + 1] >= 1 - m * (1 - ft_below_lb[w]) for w in gws if w + 1 in gws), name="ft_cap_lower_lb")
+    # ft_below_lb[w] == 1  =>  fts[w + 1] == 1
+    m.addConstrs([fts[w + 1] <= 1 + big_m * (1 - ft_below_lb[w]) for w in gws if w + 1 in gws])
+    m.addConstrs([fts[w + 1] >= 1 - big_m * (1 - ft_below_lb[w]) for w in gws if w + 1 in gws])
 
-    # 0 <= raw_gw_ft <= 5 => fts[w+1] = raw_gw_ft[w]
-    model.add_constraints((fts[w + 1] - raw_gw_ft[w] <= m * (ft_above_ub[w] + ft_below_lb[w]) for w in gws if w + 1 in gws), name="ft_inrange_ub")
-    model.add_constraints((raw_gw_ft[w] - fts[w + 1] <= m * (ft_above_ub[w] + ft_below_lb[w]) for w in gws if w + 1 in gws), name="ft_inrange_lb")
+    # Neither indicator set  =>  fts[w + 1] == raw_gw_ft[w], i.e. the raw count was already in range
+    m.addConstrs([fts[w + 1] - raw_gw_ft[w] <= big_m * (ft_above_ub[w] + ft_below_lb[w]) for w in gws if w + 1 in gws])
+    m.addConstrs([raw_gw_ft[w] - fts[w + 1] <= big_m * (ft_above_ub[w] + ft_below_lb[w]) for w in gws if w + 1 in gws])
 
-    model.add_constraints((fts[w] == so.expr_sum(fts_state[w, s] * s for s in ft_states) for w in gws), name="ftsc1")
-    model.add_constraints((so.expr_sum(fts_state[w, s] for s in ft_states) == 1 for w in gws), name="ftsc2")
+    m.addConstrs([fts[w] == sum_(fts_state[w, s] * s for s in ft_states) for w in gws])
+    m.addConstrs([sum_(fts_state[w, s] for s in ft_states) == 1 for w in gws])
 
-    model.add_constraints((penalized_transfers[w] >= transfer_diff[w] for w in gws), name="pen_transfer_rel")
+    m.addConstrs([penalized_transfers[w] >= transfer_diff[w] for w in gws])
 
     ## Chip constraints
-    model.add_constraints((use_wc[w] + use_fh[w] + use_bb[w] + use_tc_gw[w] <= 1 for w in gws), name="single_chip")
-    model.add_constraints((aux[w] <= 1 - use_wc[w - 1] for w in gws if w > next_gw), name="ft_after_wc")
-    model.add_constraints((aux[w] <= 1 - use_fh[w - 1] for w in gws if w > next_gw), name="ft_after_fh")
-    model.add_constraints((use_tc[p, w] <= captain[p, w] for p in players for w in gws), name="tc_cap_rel")
+    m.addConstrs([use_wc[w] + use_fh[w] + use_bb[w] + use_tc_gw[w] <= 1 for w in gws])
+    m.addConstrs([aux[w] <= 1 - use_wc[w - 1] for w in gws if w > next_gw])
+    m.addConstrs([aux[w] <= 1 - use_fh[w - 1] for w in gws if w > next_gw])
+    m.addConstrs([use_tc[p, w] <= captain[p, w] for p in players for w in gws])
 
     wc = options.get("use_wc", [])
     if len(wc) > 0:
-        model.add_constraints((use_wc[w] == 1 for w in wc), name="force_wc")
+        m.addConstrs([use_wc[w] == 1 for w in wc])
         chip_limits["wc"] = len(wc)
 
     bb = options.get("use_bb", [])
     if len(bb) > 0:
-        model.add_constraints((use_bb[w] == 1 for w in bb), name="force_bb")
+        m.addConstrs([use_bb[w] == 1 for w in bb])
         chip_limits["bb"] = len(bb)
 
     fh = options.get("use_fh", [])
     if len(fh) > 0:
-        model.add_constraints((use_fh[w] == 1 for w in fh), name="force_fh")
+        m.addConstrs([use_fh[w] == 1 for w in fh])
         chip_limits["fh"] = len(fh)
 
     tc = options.get("use_tc", [])
     if len(tc) > 0:
-        model.add_constraints((use_tc_gw[w] == 1 for w in tc), name="force_tc")
+        m.addConstrs([use_tc_gw[w] == 1 for w in tc])
         chip_limits["tc"] = len(tc)
 
     if len(allowed_chip_gws.get("wc", [])) > 0:
         gws_banned = [w for w in gws if w not in allowed_chip_gws["wc"]]
-        model.add_constraints((use_wc[w] == 0 for w in gws_banned), name="banned_wc_gws")
+        m.addConstrs([use_wc[w] == 0 for w in gws_banned])
         chip_limits["wc"] = 1
     if len(allowed_chip_gws.get("fh", [])) > 0:
         gws_banned = [w for w in gws if w not in allowed_chip_gws["fh"]]
-        model.add_constraints((use_fh[w] == 0 for w in gws_banned), name="banned_fh_gws")
+        m.addConstrs([use_fh[w] == 0 for w in gws_banned])
         chip_limits["fh"] = 1
     if len(allowed_chip_gws.get("bb", [])) > 0:
         gws_banned = [w for w in gws if w not in allowed_chip_gws["bb"]]
-        model.add_constraints((use_bb[w] == 0 for w in gws_banned), name="banned_bb_gws")
+        m.addConstrs([use_bb[w] == 0 for w in gws_banned])
         chip_limits["bb"] = 1
     if len(allowed_chip_gws.get("tc", [])) > 0:
         gws_banned = [w for w in gws if w not in allowed_chip_gws["tc"]]
-        model.add_constraints((use_tc_gw[w] == 0 for w in gws_banned), name="banned_tc_gws")
+        m.addConstrs([use_tc_gw[w] == 0 for w in gws_banned])
         chip_limits["tc"] = 1
 
     if len(forced_chip_gws.get("wc", [])) > 0:
-        model.add_constraint(so.expr_sum(use_wc[w] for w in forced_chip_gws["wc"]) == 1, name="force_wc_gw")
+        m.addConstr(sum_(use_wc[w] for w in forced_chip_gws["wc"]) == 1)
         chip_limits["wc"] = 1
     if len(forced_chip_gws.get("fh", [])) > 0:
-        model.add_constraint(so.expr_sum(use_fh[w] for w in forced_chip_gws["fh"]) == 1, name="force_fh_gw")
+        m.addConstr(sum_(use_fh[w] for w in forced_chip_gws["fh"]) == 1)
         chip_limits["fh"] = 1
     if len(forced_chip_gws.get("bb", [])) > 0:
-        model.add_constraint(so.expr_sum(use_bb[w] for w in forced_chip_gws["bb"]) == 1, name="force_bb_gw")
+        m.addConstr(sum_(use_bb[w] for w in forced_chip_gws["bb"]) == 1)
         chip_limits["bb"] = 1
     if len(forced_chip_gws.get("tc", [])) > 0:
-        model.add_constraint(so.expr_sum(use_tc_gw[w] for w in forced_chip_gws["tc"]) == 1, name="force_tc_gw")
+        m.addConstr(sum_(use_tc_gw[w] for w in forced_chip_gws["tc"]) == 1)
         chip_limits["tc"] = 1
 
-    model.add_constraint(so.expr_sum(use_wc[w] for w in gws) <= chip_limits.get("wc", 0), name="use_wc_limit")
-    model.add_constraint(so.expr_sum(use_bb[w] for w in gws) <= chip_limits.get("bb", 0), name="use_bb_limit")
-    model.add_constraint(so.expr_sum(use_fh[w] for w in gws) <= chip_limits.get("fh", 0), name="use_fh_limit")
-    model.add_constraint(so.expr_sum(use_tc_gw[w] for w in gws) <= chip_limits.get("tc", 0), name="use_tc_limit")
-    model.add_constraints((squad_fh[p, w] <= use_fh[w] for p in players for w in gws), name="fh_squad_logic")
+    m.addConstr(sum_(use_wc[w] for w in gws) <= chip_limits.get("wc", 0))
+    m.addConstr(sum_(use_bb[w] for w in gws) <= chip_limits.get("bb", 0))
+    m.addConstr(sum_(use_fh[w] for w in gws) <= chip_limits.get("fh", 0))
+    m.addConstr(sum_(use_tc_gw[w] for w in gws) <= chip_limits.get("tc", 0))
+    m.addConstrs([squad_fh[p, w] <= use_fh[w] for p in players for w in gws])
 
     ## Multiple-sell fix
-    model.add_constraints(
-        (transfer_out_first[p, w] + transfer_out_regular[p, w] <= 1 for p in price_modified_players for w in gws), name="multi_sell_1"
-    )
-    model.add_constraints(
-        (
-            horizon * so.expr_sum(transfer_out_first[p, w] for w in gws if w <= wbar)
-            >= so.expr_sum(transfer_out_regular[p, w] for w in gws if w >= wbar)
+    m.addConstrs([transfer_out_first[p, w] + transfer_out_regular[p, w] <= 1 for p in price_modified_players for w in gws])
+    m.addConstrs(
+        [
+            horizon * sum_(transfer_out_first[p, w] for w in gws if w <= wbar) >= sum_(transfer_out_regular[p, w] for w in gws if w >= wbar)
             for p in price_modified_players
             for wbar in gws
-        ),
-        name="multi_sell_2",
+        ]
     )
-    model.add_constraints((so.expr_sum(transfer_out_first[p, w] for w in gws) <= 1 for p in price_modified_players), name="multi_sell_3")
+    m.addConstrs([sum_(transfer_out_first[p, w] for w in gws) <= 1 for p in price_modified_players])
 
     ## Transfer in/out fix
-    model.add_constraints((transfer_in[p, w] + transfer_out[p, w] <= 1 for p in players for w in gws), name="tr_in_out_limit")
+    m.addConstrs([transfer_in[p, w] + transfer_out[p, w] <= 1 for p in players for w in gws])
 
     ## Tr Count Constraints
     ft_penalty = dict.fromkeys(gws, 0)
-    model.add_constraints((transfer_count[w] >= num_transfers[w] - SQUAD_SIZE * use_wc[w] for w in gws), name="trc_lb")
-    model.add_constraints((transfer_count[w] <= num_transfers[w] for w in gws), name="trc_ub1")
-    model.add_constraints((transfer_count[w] <= SQUAD_SIZE * (1 - use_wc[w]) for w in gws), name="trc_ub2")
+    m.addConstrs([transfer_count[w] >= num_transfers[w] - SQUAD_SIZE * use_wc[w] for w in gws])
+    m.addConstrs([transfer_count[w] <= num_transfers[w] for w in gws])
+    m.addConstrs([transfer_count[w] <= SQUAD_SIZE * (1 - use_wc[w]) for w in gws])
     if ft_use_penalty is not None:
         ft_penalty = {w: ft_use_penalty * transfer_count[w] for w in gws}
 
@@ -598,50 +589,46 @@ def solve_multi_period_fpl(data, options):
     if options.get("banned", None):
         print("OC - Banned")
         banned_players = options["banned"]
-        model.add_constraints((so.expr_sum(squad[p, w] for w in gws) == 0 for p in banned_players if p in players), name="ban_player")
-        model.add_constraints((so.expr_sum(squad_fh[p, w] for w in gws) == 0 for p in banned_players if p in players), name="ban_player_fh")
+        m.addConstrs([sum_(squad[p, w] for w in gws) == 0 for p in banned_players if p in players])
+        m.addConstrs([sum_(squad_fh[p, w] for w in gws) == 0 for p in banned_players if p in players])
 
     if options.get("banned_next_gw", None):
         print("OC - Banned Next GW")
         banned_in_gw = [(x, gws[0]) if isinstance(x, int) else tuple(x) for x in options["banned_next_gw"]]
-        model.add_constraints((squad[p0, p1] == 0 for (p0, p1) in banned_in_gw if p0 in players), name="ban_player_specified_gw")
-        model.add_constraints((squad_fh[p0, p1] == 0 for (p0, p1) in banned_in_gw if p0 in players), name="ban_player_specified_gw_fh")
+        m.addConstrs([squad[p0, p1] == 0 for (p0, p1) in banned_in_gw if p0 in players])
+        m.addConstrs([squad_fh[p0, p1] == 0 for (p0, p1) in banned_in_gw if p0 in players])
 
     if options.get("locked", None):
         print("OC - Locked")
         locked_players = options["locked"]
-        model.add_constraints((squad[p, w] + squad_fh[p, w] == 1 for p in locked_players for w in gws), name="lock_player")
+        m.addConstrs([squad[p, w] + squad_fh[p, w] == 1 for p in locked_players for w in gws])
 
     if options.get("locked_next_gw", None):
         print("OC - Locked Next GW")
         locked_in_gw = [(x, gws[0]) if isinstance(x, int) else tuple(x) for x in options["locked_next_gw"]]
-        model.add_constraints((squad[p0, p1] == 1 for (p0, p1) in locked_in_gw), name="lock_player_specified_gw")
+        m.addConstrs([squad[p0, p1] == 1 for (p0, p1) in locked_in_gw])
 
     if options.get("no_future_transfer", None):
         print("OC - No Future Tr")
-        model.add_constraint(
-            so.expr_sum(transfer_in[p, w] for p in players for w in gws if w > next_gw and w != options.get("use_wc")) == 0, name="no_future_transfer"
-        )
+        m.addConstr(sum_(transfer_in[p, w] for p in players for w in gws if w > next_gw and w != options.get("use_wc")) == 0)
 
     if options.get("no_transfer_last_gws", None):
         print("OC - No TR last GWs")
         no_tr_gws = options["no_transfer_last_gws"]
         if horizon > no_tr_gws:
-            model.add_constraints(
-                (so.expr_sum(transfer_in[p, w] for p in players) <= SQUAD_SIZE * use_wc[w] for w in gws if w > last_gw - no_tr_gws), name="tr_ban_gws"
-            )
+            m.addConstrs([sum_(transfer_in[p, w] for p in players) <= SQUAD_SIZE * use_wc[w] for w in gws if w > last_gw - no_tr_gws])
 
     if options.get("num_transfers", None) is not None:
         print("OC - Num Transfers")
-        model.add_constraint(so.expr_sum(transfer_in[p, next_gw] for p in players) == options["num_transfers"], name="tr_limit")
+        m.addConstr(sum_(transfer_in[p, next_gw] for p in players) == options["num_transfers"])
 
     if options.get("hit_limit", None):
         print("OC - Hit Limit")
-        model.add_constraint(so.expr_sum(penalized_transfers[w] for w in gws) <= int(options["hit_limit"]), name="horizon_hit_limit")
+        m.addConstr(sum_(penalized_transfers[w] for w in gws) <= int(options["hit_limit"]))
 
     if options.get("weekly_hit_limit") is not None:
         weekly_hit_limit = int(options.get("weekly_hit_limit"))
-        model.add_constraints((penalized_transfers[w] <= weekly_hit_limit for w in gws), name="gw_hit_lim")
+        m.addConstrs([penalized_transfers[w] <= weekly_hit_limit for w in gws])
 
     # if options.get("ft_custom_value", None) is not None:
     #     ft_custom_value = {int(key): value for (key, value) in options.get('ft_custom_value', {}).items()}
@@ -649,66 +636,51 @@ def solve_multi_period_fpl(data, options):
 
     if options.get("future_transfer_limit", None):
         print("OC - Future TR Limit")
-        model.add_constraint(
-            so.expr_sum(transfer_in[p, w] for p in players for w in gws if w > next_gw and w not in options.get("use_wc", []))
-            <= options["future_transfer_limit"],
-            name="future_tr_limit",
+        m.addConstr(
+            sum_(transfer_in[p, w] for p in players for w in gws if w > next_gw and w not in options.get("use_wc", []))
+            <= options["future_transfer_limit"]
         )
 
     if options.get("no_transfer_gws", None):
         print("OC - No TR GWs")
         if len(options["no_transfer_gws"]) > 0:
-            model.add_constraint(so.expr_sum(transfer_in[p, w] for p in players for w in options["no_transfer_gws"]) == 0, name="banned_gws_for_tr")
+            m.addConstr(sum_(transfer_in[p, w] for p in players for w in options["no_transfer_gws"]) == 0)
 
     if options.get("no_transfer_by_position", None):
         print("OC - No TR by position")
         if len(options["no_transfer_by_position"]) > 0:
-            # ignore w=1 as you must transfer in a full squad
-            model.add_constraints(
-                (
-                    transfer_in[p, w] <= use_wc[w]
-                    for p in players
-                    for w in gws
-                    if w > 1
-                    if player_pos[p] in options["no_transfer_by_position"]
-                ),
-                name="no_tr_by_pos",
+            m.addConstrs(
+                [transfer_in[p, w] <= use_wc[w] for p in players for w in gws if w > 1 if player_pos[p] in options["no_transfer_by_position"]]
             )
 
     max_defs_per_team = options.get("max_defenders_per_team", 3)
-    if max_defs_per_team < MAX_PLAYERS_PER_TEAM:  # only add constraints if necessary
-        model.add_constraints(
-            (
-                so.expr_sum(squad[p, w] for p in players if player_team[p] == t and player_pos[p] in {"G", "D"}) <= max_defs_per_team
+    if max_defs_per_team < MAX_PLAYERS_PER_TEAM:
+        m.addConstrs(
+            [
+                sum_(squad[p, w] for p in players if player_team[p] == t and player_pos[p] in {"G", "D"}) <= max_defs_per_team
                 for t in teams
                 for w in gws
-            ),
-            name="defenders_per_team_limit",
+            ]
         )
-        model.add_constraints(
-            (
-                so.expr_sum(squad_fh[p, w] for p in players if player_team[p] == t and player_pos[p] in {"G", "D"})
-                <= max_defs_per_team * use_fh[w]
+        m.addConstrs(
+            [
+                sum_(squad_fh[p, w] for p in players if player_team[p] == t and player_pos[p] in {"G", "D"}) <= max_defs_per_team * use_fh[w]
                 for t in teams
                 for w in gws
-            ),
-            name="defenders_per_team_limit_fh",
+            ]
         )
 
     for booked_transfer in booked_transfers:
         print("OC - Booked TRs")
         transfer_gw = booked_transfer.get("gw", None)
-
         if transfer_gw is None:
             continue
-
         player_in = booked_transfer.get("transfer_in", None)
         player_out = booked_transfer.get("transfer_out", None)
-
         if player_in is not None:
-            model.add_constraint(transfer_in[player_in, transfer_gw] == 1, name=f"booked_transfer_in_{transfer_gw}_{player_in}")
+            m.addConstr(transfer_in[player_in, transfer_gw] == 1)
         if player_out is not None:
-            model.add_constraint(transfer_out[player_out, transfer_gw] == 1, name=f"booked_transfer_out_{transfer_gw}_{player_out}")
+            m.addConstr(transfer_out[player_out, transfer_gw] == 1)
 
     cp_penalty = {}
     if options.get("no_opposing_play") is True:
@@ -717,28 +689,18 @@ def solve_multi_period_fpl(data, options):
             w: [(f["home"], f["away"]) for f in fixtures if f["gw"] == w] + [(f["away"], f["home"]) for f in fixtures if f["gw"] == w] for w in gws
         }
         for gw in gws:
-            [i for i in fixtures if i["gw"] == gw]
             if options.get("opposing_play_group", "all") == "all":
                 opposing_players = [(p1, p2) for p1 in players for p2 in players if (player_team[p1], player_team[p2]) in gw_opp_teams[gw]]
-                model.add_constraints((lineup[p1, gw] + lineup[p2, gw] <= 1 for (p1, p2) in opposing_players), name=f"no_opp_{gw}")
+                m.addConstrs([lineup[p1, gw] + lineup[p2, gw] <= 1 for (p1, p2) in opposing_players])
             elif options.get("opposing_play_group") == "position":
-                opposing_positions = [
-                    (1, 3),
-                    (1, 4),
-                    (2, 3),
-                    (2, 4),
-                    (3, 1),
-                    (4, 1),
-                    (3, 2),
-                    (4, 2),
-                ]  # gk vs mid, gk vs fwd, def vs mid, def vs fwd
+                opposing_positions = [(1, 3), (1, 4), (2, 3), (2, 4), (3, 1), (4, 1), (3, 2), (4, 2)]
                 opposing_players = [
                     (p1, p2)
                     for p1 in players
                     for p2 in players
                     if (player_team[p1], player_team[p2]) in gw_opp_teams[gw] and (player_type[p1], player_type[p2]) in opposing_positions
                 ]
-                model.add_constraints((lineup[p1, gw] + lineup[p2, gw] <= 1 for (p1, p2) in opposing_players), name=f"no_opp_{gw}")
+                m.addConstrs([lineup[p1, gw] + lineup[p2, gw] <= 1 for (p1, p2) in opposing_players])
     elif options.get("no_opposing_play") == "penalty":
         print("OC - Penalty Opposing Play")
         gw_opp_teams = {
@@ -764,58 +726,54 @@ def solve_multi_period_fpl(data, options):
                 and minutes_player_week[p2, w] > 0
                 and (player_type[p1], player_type[p2]) in opposing_positions
             ]
-        cp_pen_var = model.add_variables(cp_list, name="cp_v", vartype=so.binary)
+        else:
+            cp_list = []
+        cp_pen_var = bin_vars(cp_list, name="cp_v")
         opposing_play_penalty = options.get("opposing_play_penalty", 0.5)
-        cp_penalty = {w: opposing_play_penalty * so.expr_sum(cp_pen_var[p1, p2, w1] for (p1, p2, w1) in cp_list if w1 == w) for w in gws}
-        model.add_constraints((lineup[p1, w] + lineup[p2, w] <= 1 + cp_pen_var[p1, p2, w] for (p1, p2, w) in cp_list), name="cp1")
-        model.add_constraints((cp_pen_var[p1, p2, w] <= lineup[p1, w] for (p1, p2, w) in cp_list), name="cp2")
-        model.add_constraints((cp_pen_var[p1, p2, w] <= lineup[p2, w] for (p1, p2, w) in cp_list), name="cp3")
+        cp_penalty = {w: opposing_play_penalty * sum_(cp_pen_var[p1, p2, w1] for (p1, p2, w1) in cp_list if w1 == w) for w in gws}
+        m.addConstrs([lineup[p1, w] + lineup[p2, w] <= 1 + cp_pen_var[p1, p2, w] for (p1, p2, w) in cp_list])
+        m.addConstrs([cp_pen_var[p1, p2, w] <= lineup[p1, w] for (p1, p2, w) in cp_list])
+        m.addConstrs([cp_pen_var[p1, p2, w] <= lineup[p2, w] for (p1, p2, w) in cp_list])
 
     if options.get("double_defense_pick") is True:
         print("OC - Double Defense Pick")
         team_players = {t: [p for p in players if player_team[p] == t] for t in teams}
         gk_df_players = {t: [p for p in team_players[t] if player_type[p] in [1, 2]] for t in teams}
-        weekly_sum = {(t, w): so.expr_sum(lineup[p, w] for p in gk_df_players[t]) for t in teams for w in gws}
-        def_aux = model.add_variables(teams, gws, vartype=so.binary, name="daux")
-        model.add_constraints((weekly_sum[t, w] <= 3 * def_aux[t, w] for t in teams for w in gws), name="dauxc1")
-        model.add_constraints((weekly_sum[t, w] >= 2 - 3 * (1 - def_aux[t, w]) for t in teams for w in gws), name="dauxc2")
+        weekly_sum = {(t, w): sum_(lineup[p, w] for p in gk_df_players[t]) for t in teams for w in gws}
+        def_aux = bin_vars(teams, gws, name="daux")
+        m.addConstrs([weekly_sum[t, w] <= 3 * def_aux[t, w] for t in teams for w in gws])
+        m.addConstrs([weekly_sum[t, w] >= 2 - 3 * (1 - def_aux[t, w]) for t in teams for w in gws])
 
     if options.get("transfer_itb_buffer"):
         buffer_amount = float(options["transfer_itb_buffer"])
-        gw_with_tr = model.add_variables(gws, name="gw_with_tr", vartype=so.binary)
-        model.add_constraints((SQUAD_SIZE * gw_with_tr[w] >= num_transfers[w] for w in gws), name="gw_with_tr_lb")
-        model.add_constraints((gw_with_tr[w] <= num_transfers[w] for w in gws), name="gw_with_tr_ub")
-        model.add_constraints((in_the_bank[w] >= buffer_amount * gw_with_tr[w] for w in gws), name="buffer_con")
+        gw_with_tr = bin_vars(gws, name="gw_with_tr")
+        m.addConstrs([SQUAD_SIZE * gw_with_tr[w] >= num_transfers[w] for w in gws])
+        m.addConstrs([gw_with_tr[w] <= num_transfers[w] for w in gws])
+        m.addConstrs([in_the_bank[w] >= buffer_amount * gw_with_tr[w] for w in gws])
 
     if options.get("pick_prices", None) not in [None, {"G": "", "D": "", "M": "", "F": ""}]:
         print("OC - Pick Prices")
         buffer = 0.2
         price_choices = options["pick_prices"]
-        for pos, val in price_choices.items():
-            if val == "":
+        for pos, price_val in price_choices.items():
+            if price_val == "":
                 continue
-            price_points = [float(i) for i in val.split(",")]
+            price_points = [float(i) for i in price_val.split(",")]
             value_dict = {i: price_points.count(i) for i in set(price_points)}
-            con_iter = 0
             for key, count in value_dict.items():
-                target_players = [
-                    p for p in players if player_pos[p] == pos and buy_price[p] >= key - buffer and buy_price[p] <= key + buffer
-                ]
-                model.add_constraints((so.expr_sum(squad[p, w] for p in target_players) >= count for w in gws), name=f"price_point_{pos}_{con_iter}")
-                con_iter += 1
+                target_players = [p for p in players if player_pos[p] == pos and buy_price[p] >= key - buffer and buy_price[p] <= key + buffer]
+                m.addConstrs([sum_(squad[p, w] for p in target_players) >= count for w in gws])
 
     if options.get("no_gk_rotation_after", None):
         print("OC - No GK rotation")
         target_gw = int(options["no_gk_rotation_after"])
         players_gk = [p for p in players if player_type[p] == 1]
-        model.add_constraints(
-            (lineup[p, w] >= lineup[p, target_gw] - use_fh[w] for p in players_gk for w in gws if w > target_gw), name="fixed_lineup_gk"
-        )
+        m.addConstrs([lineup[p, w] >= lineup[p, target_gw] - use_fh[w] for p in players_gk for w in gws if w > target_gw])
 
     if len(options.get("no_chip_gws", [])) > 0:
         print("OC - No Chip GWs")
         no_chip_gws = options["no_chip_gws"]
-        model.add_constraint(so.expr_sum(use_bb[w] + use_wc[w] + use_fh[w] for w in no_chip_gws) == 0, name="no_chip_gws")
+        m.addConstr(sum_(use_bb[w] + use_wc[w] + use_fh[w] for w in no_chip_gws) == 0)
 
     if options.get("only_booked_transfers") is True:
         print("OC - Only Booked Transfers")
@@ -827,29 +785,28 @@ def solve_multi_period_fpl(data, options):
                     forced_in.append(bt["transfer_in"])
                 if bt.get("transfer_out") is not None:
                     forced_out.append(bt["transfer_out"])
-
         in_players = {(p): 1 if p in forced_in else 0 for p in players}
         out_players = {(p): 1 if p in forced_out else 0 for p in players}
-        model.add_constraints((transfer_in[p, next_gw] == in_players[p] for p in players), name="fix_tgw_tr_in")
-        model.add_constraints((transfer_out[p, next_gw] == out_players[p] for p in players), name="fix_tgw_tr_out")
+        m.addConstrs([transfer_in[p, next_gw] == in_players[p] for p in players])
+        m.addConstrs([transfer_out[p, next_gw] == out_players[p] for p in players])
 
     # if options.get('have_2ft_in_gws', None) is not None:
     #     for gw in options['have_2ft_in_gws']:
-    #         model.add_constraint(fts[gw] == 2, name=f'have_2ft_{gw}')
+    #         m.addConstr(fts[gw] == 2)
 
     if options.get("force_ft_state_lb", None):
         print("OC - Force FT LB")
         for gw, ft_pos in options["force_ft_state_lb"]:
-            model.add_constraint(fts[gw] >= ft_pos, name=f"cft_lb_{gw}")
+            m.addConstr(fts[gw] >= ft_pos)
 
     if options.get("force_ft_state_ub", None):
         print("OC - Force FT UB")
         for gw, ft_pos in options["force_ft_state_ub"]:
-            model.add_constraint(fts[gw] <= ft_pos, name=f"cft_ub_{gw}")
+            m.addConstr(fts[gw] <= ft_pos)
 
     if options.get("no_trs_except_wc", False) is True:
         print("OC - No TRS except WC")
-        model.add_constraints((num_transfers[w] <= SQUAD_SIZE * use_wc[w] for w in gws), name="wc_trs_only")
+        m.addConstrs([num_transfers[w] <= SQUAD_SIZE * use_wc[w] for w in gws])
 
     # FT gain
     ft_state_value = {}
@@ -857,22 +814,16 @@ def solve_multi_period_fpl(data, options):
         ft_state_value[s] = ft_state_value.get(s - 1, 0) + ft_value_list.get(str(s), ft_value)
     # print(f"Using FT state values of {ft_state_value}")
     print(f"Using FT values of {ft_value_list}")
-    gw_ft_value = {w: so.expr_sum(ft_state_value[s] * fts_state[w, s] for s in ft_states) for w in gws}
+    gw_ft_value = {w: sum_(ft_state_value[s] * fts_state[w, s] for s in ft_states) for w in gws}
     gw_ft_gain = {w: gw_ft_value[w] - gw_ft_value.get(w - 1, 0) for w in gws}
 
     # Objectives
     hit_cost = options.get("hit_cost", 4)
     vcap_weight = options.get("vcap_weight", 0.1)
     gw_xp = {
-        w: so.expr_sum(
+        w: sum_(
             points_player_week[p, w]
-            * (
-                lineup[p, w]
-                + captain[p, w]
-                + vcap_weight * vicecap[p, w]
-                + use_tc[p, w]
-                + so.expr_sum(bench_weights[o] * bench[p, w, o] for o in order)
-            )
+            * (lineup[p, w] + captain[p, w] + vcap_weight * vicecap[p, w] + use_tc[p, w] + sum_(bench_weights[o] * bench[p, w, o] for o in order))
             for p in players
         )
         for w in gws
@@ -884,146 +835,136 @@ def solve_multi_period_fpl(data, options):
     }
 
     if objective == "regular":
-        total_xp = so.expr_sum(gw_total[w] for w in gws)
-        model.set_objective(-total_xp, sense="N", name="total_regular_xp")
+        objective_expr = sum_(gw_total[w] for w in gws)
     else:
-        decay_objective = so.expr_sum(gw_total[w] * pow(decay_base, w - next_gw) for w in gws)
-        model.set_objective(-decay_objective, sense="N", name="total_decay_xp")
+        objective_expr = sum_(gw_total[w] * pow(decay_base, w - next_gw) for w in gws)
+    m.setObjective(objective_expr, sense=highspy.ObjSense.kMaximize)
 
     report_decay_base = options.get("report_decay_base", [])
-    decay_metrics = {i: so.expr_sum(gw_total[w] * pow(i, w - next_gw) for w in gws) for i in report_decay_base}
+    decay_metrics = {i: sum_(gw_total[w] * pow(i, w - next_gw) for w in gws) for i in report_decay_base}
 
     num_iterations = options.get("num_iterations", 1)
     iteration_criteria = options.get("iteration_criteria", "this_gw_transfer_in")
 
-    # fix for multiple iterations when free-hitting next gameweek
     if iteration_criteria in {"this_gw_transfer_in", "this_gw_transfer_in_out"} and next_gw in options.get("use_fh", []):
         iteration_criteria = "this_gw_lineup"
     solutions = []
 
-    for iteration in range(num_iterations):
-        mps_file_name = f"tmp/{problem_name}_{problem_id}_{iteration}.mps"
-        sol_file_name = f"tmp/{problem_name}_{problem_id}_{iteration}_sol.txt"
-        opt_file_name = f"tmp/{problem_name}_{problem_id}_{iteration}.opt"
+    secs = options.get("secs", 20 * 60)
+    presolve = options.get("presolve", "on")
+    gap = options.get("gap", 0)
+    random_seed = options.get("random_seed", 0)
+    solver = options.get("solver", "highs")
+
+    m.setOptionValue("parallel", "on")
+    m.setOptionValue("random_seed", random_seed)
+    m.setOptionValue("presolve", presolve)
+    m.setOptionValue("time_limit", secs)
+    m.setOptionValue("mip_rel_gap", gap)
+    m.setOptionValue("log_to_console", verbose)
+
+    if solver == "gurobi":
+        var_names = [m.variableName(i) for i in range(m.numVariables)]
+
+    def make_val(values_array):
+        def val(x):
+            if isinstance(x, (int, float)):
+                return float(x)
+            if isinstance(x, highspy.highs_var):
+                return values_array[x.index]
+            return x.evaluate(values_array)
+
+        return val
+
+    def run_solve(iteration):
+        if solver != "gurobi":
+            m.run()
+            # read the solution vector once - m.val re-copies it out of HiGHS on every single call
+            return make_val(list(m.getSolution().col_value))
 
         tmp_folder = Path() / "tmp"
         tmp_folder.mkdir(exist_ok=True, parents=True)
-        model.export_mps(mps_file_name)
-        print(f"Exported model with name: {problem_name}_{problem_id}_{iteration}")
+        mps_file_name = f"tmp/{problem_name}_{problem_id}_{iteration}.mps"
+        sol_file_name = f"tmp/{problem_name}_{problem_id}_{iteration}.sol"
+        m.writeModel(mps_file_name)
+        command = f"gurobi_cl MIPGap={gap} ResultFile={sol_file_name} {mps_file_name}"
 
-        if options.get("export_debug", False):
-            with open("debug.sas", "w") as file:
-                file.write(model.to_optmodel())
+        def print_output(process):
+            while True:
+                output = process.stdout.readline()
+                if "Solving report" in output:
+                    time.sleep(2)
+                    process.kill()
+                elif output == "" and process.poll() is not None:
+                    break
+                elif output:
+                    print(output.strip())
 
-        solver = options.get("solver", "highs")
+        process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+        output_thread = threading.Thread(target=print_output, args=(process,))
+        output_thread.start()
+        output_thread.join()
 
-        if solver.lower() == "highs":
-            # Use highspy Python interface instead of command line
-            secs = options.get("secs", 20 * 60)
-            presolve = options.get("presolve", "on")
-            gap = options.get("gap", 0)
-            random_seed = options.get("random_seed", 0)
-            verbose = options.get("verbose", False)
+        values_by_name = {}
+        with open(sol_file_name) as f:
+            for line in f:
+                if line.startswith("#") or not line.strip():
+                    continue
+                name, value = line.split()
+                values_by_name[name] = float(value)
+        values_array = [values_by_name.get(n, 0.0) for n in var_names]
 
-            solver_instance = highspy.Highs()
-            solver_instance.readModel(str(mps_file_name))
-            solver_instance.setOptionValue("parallel", "on")
-            solver_instance.setOptionValue("random_seed", random_seed)
-            solver_instance.setOptionValue("presolve", presolve)
-            solver_instance.setOptionValue("time_limit", secs)
-            solver_instance.setOptionValue("mip_rel_gap", gap)
-            solver_instance.setOptionValue("log_to_console", verbose)
+        if options.get("delete_tmp", True):
+            for fname in (mps_file_name, sol_file_name):
+                try:
+                    os.unlink(fname)
+                except OSError:
+                    pass
 
-            solver_instance.run()
-            solution = solver_instance.getSolution()
-            values = list(solution.col_value)
-            for idx, v in enumerate(model.get_variables()):
-                v.set_value(values[idx])
+        return make_val(values_array)
 
-        elif solver == "gurobi":
-            gap = options.get("gap", 0)
-            sol_file_name = sol_file_name.replace("_sol", "").replace("txt", "sol")
-            command = f"gurobi_cl MIPGap={gap} ResultFile={sol_file_name} {mps_file_name}"
-
-            def print_output(process):
-                while True:
-                    output = process.stdout.readline()
-                    if "Solving report" in output:
-                        time.sleep(2)
-                        process.kill()
-                    elif output == "" and process.poll() is not None:
-                        break
-                    elif output:
-                        print(output.strip())
-
-            process = subprocess.Popen(shlex.split(command), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-            output_thread = threading.Thread(target=print_output, args=(process,))
-            output_thread.start()
-            output_thread.join()
-
-            # Parsing
-            with open(sol_file_name) as f:
-                for v in model.get_variables():
-                    v.set_value(0)
-                for line in f:
-                    if line[0] == "#":
-                        continue
-                    if line == "":
-                        break
-                    words = line.split()
-                    v = model.get_variable(words[0])
-                    try:
-                        if v.get_type() == so.INT:
-                            v.set_value(round(float(words[1])))
-                        elif v.get_type() == so.BIN:
-                            v.set_value(round(float(words[1])))
-                        elif v.get_type() == so.CONT:
-                            v.set_value(round(float(words[1]), 3))
-                    except Exception:
-                        print("Error", words[0], line)
+    for iteration in range(num_iterations):
+        val = run_solve(iteration)
 
         # DataFrame generation
         picks = []
         for w in gws:
             for p in players:
-                if squad[p, w].get_value() + squad_fh[p, w].get_value() + transfer_out[p, w].get_value() > BINARY_THRESHOLD:
+                if val(squad[p, w]) + val(squad_fh[p, w]) + val(transfer_out[p, w]) > BINARY_THRESHOLD:
                     lp = merged_data.loc[p]
-                    is_captain = 1 if captain[p, w].get_value() > BINARY_THRESHOLD else 0
+                    is_captain = 1 if val(captain[p, w]) > BINARY_THRESHOLD else 0
                     is_squad = (
                         1
-                        if (use_fh[w].get_value() < BINARY_THRESHOLD and squad[p, w].get_value() > BINARY_THRESHOLD)
-                        or (use_fh[w].get_value() > BINARY_THRESHOLD and squad_fh[p, w].get_value() > BINARY_THRESHOLD)
+                        if (val(use_fh[w]) < BINARY_THRESHOLD and val(squad[p, w]) > BINARY_THRESHOLD)
+                        or (val(use_fh[w]) > BINARY_THRESHOLD and val(squad_fh[p, w]) > BINARY_THRESHOLD)
                         else 0
                     )
-                    is_lineup = 1 if lineup[p, w].get_value() > BINARY_THRESHOLD else 0
-                    is_vice = 1 if vicecap[p, w].get_value() > BINARY_THRESHOLD else 0
-                    is_tc = 1 if use_tc[p, w].get_value() > BINARY_THRESHOLD else 0
-                    is_transfer_in = 1 if transfer_in[p, w].get_value() > BINARY_THRESHOLD else 0
-                    is_transfer_out = 1 if transfer_out[p, w].get_value() > BINARY_THRESHOLD else 0
+                    is_lineup = 1 if val(lineup[p, w]) > BINARY_THRESHOLD else 0
+                    is_vice = 1 if val(vicecap[p, w]) > BINARY_THRESHOLD else 0
+                    is_tc = 1 if val(use_tc[p, w]) > BINARY_THRESHOLD else 0
+                    is_transfer_in = 1 if val(transfer_in[p, w]) > BINARY_THRESHOLD else 0
+                    is_transfer_out = 1 if val(transfer_out[p, w]) > BINARY_THRESHOLD else 0
                     bench_value = -1
                     for o in order:
-                        if bench[p, w, o].get_value() > BINARY_THRESHOLD:
+                        if val(bench[p, w, o]) > BINARY_THRESHOLD:
                             bench_value = o
                     position = type_data.loc[lp["element_type"], "singular_name_short"]
                     player_buy_price = 0 if not is_transfer_in else buy_price[p]
                     player_sell_price = (
                         0
                         if not is_transfer_out
-                        else (
-                            sell_price[p] if p in price_modified_players and transfer_out_first[p, w].get_value() > BINARY_THRESHOLD else buy_price[p]
-                        )
+                        else (sell_price[p] if p in price_modified_players and val(transfer_out_first[p, w]) > BINARY_THRESHOLD else buy_price[p])
                     )
                     multiplier = 1 * (is_lineup == 1) + 1 * (is_captain == 1) + 1 * (is_tc == 1)
                     xp_cont = points_player_week[p, w] * multiplier
 
-                    # chip
-                    if use_wc[w].get_value() > BINARY_THRESHOLD:
+                    if val(use_wc[w]) > BINARY_THRESHOLD:
                         chip_text = "WC"
-                    elif use_fh[w].get_value() > BINARY_THRESHOLD:
+                    elif val(use_fh[w]) > BINARY_THRESHOLD:
                         chip_text = "FH"
-                    elif use_bb[w].get_value() > BINARY_THRESHOLD:
+                    elif val(use_bb[w]) > BINARY_THRESHOLD:
                         chip_text = "BB"
-                    elif use_tc[p, w].get_value() > BINARY_THRESHOLD:
+                    elif val(use_tc[p, w]) > BINARY_THRESHOLD:
                         chip_text = "TC"
                     else:
                         chip_text = ""
@@ -1051,61 +992,54 @@ def solve_multi_period_fpl(data, options):
                             "xp_cont": xp_cont,
                             "chip": chip_text,
                             "iter": iteration,
-                            "ft": fts[w].get_value(),
-                            "transfer_count": num_transfers[w].get_value(),
+                            "ft": val(fts[w]),
+                            "transfer_count": val(num_transfers[w]),
                         }
                     )
 
         picks_df = pd.DataFrame(picks).sort_values(by=["week", "lineup", "type", "xP"], ascending=[True, False, True, True])
-        total_xp = so.expr_sum((lineup[p, w] + captain[p, w]) * points_player_week[p, w] for p in players for w in gws).get_value()
+        total_xp = val(sum_((lineup[p, w] + captain[p, w]) * points_player_week[p, w] for p in players for w in gws))
 
         picks_df.sort_values(by=["week", "squad", "lineup", "bench", "type"], ascending=[True, False, False, True, True], inplace=True)
 
-        # Writing summary
         summary_of_actions = ""
         move_summary = {"chip": [], "buy": [], "sell": []}
-
-        # collect statistics
         statistics = {}
 
         for w in all_gw:
             if w == all_gw[0]:
-                statistics[int(w)] = {"itb": in_the_bank[w].get_value(), "ft": fts[w].get_value()}
+                statistics[int(w)] = {"itb": val(in_the_bank[w]), "ft": val(fts[w])}
                 continue
             summary_of_actions += f"** GW {w}:\n"
             chip_decision = (
-                ("WC" if use_wc[w].get_value() > BINARY_THRESHOLD else "")
-                + ("FH" if use_fh[w].get_value() > BINARY_THRESHOLD else "")
-                + ("BB" if use_bb[w].get_value() > BINARY_THRESHOLD else "")
-                + ("TC" if use_tc_gw[w].get_value() > BINARY_THRESHOLD else "")
+                ("WC" if val(use_wc[w]) > BINARY_THRESHOLD else "")
+                + ("FH" if val(use_fh[w]) > BINARY_THRESHOLD else "")
+                + ("BB" if val(use_bb[w]) > BINARY_THRESHOLD else "")
+                + ("TC" if val(use_tc_gw[w]) > BINARY_THRESHOLD else "")
             )
             if chip_decision != "":
                 summary_of_actions += "CHIP " + chip_decision + "\n"
                 move_summary["chip"].append(chip_decision + str(w))
             summary_of_actions += (
-                f"ITB={round(in_the_bank[w - 1].get_value(), 1)}->{round(in_the_bank[w].get_value(), 1)}, "
-                f"FT={round(fts[w].get_value())}, "
-                f"PT={round(penalized_transfers[w].get_value())}, "
-                f"NT={round(num_transfers[w].get_value())}\n"
+                f"ITB={round(val(in_the_bank[w - 1]), 1)}->{round(val(in_the_bank[w]), 1)}, "
+                f"FT={round(val(fts[w]))}, "
+                f"PT={round(val(penalized_transfers[w]))}, "
+                f"NT={round(val(num_transfers[w]))}\n"
             )
             for p in players:
-                if transfer_in[p, w].get_value() > BINARY_THRESHOLD:
+                if val(transfer_in[p, w]) > BINARY_THRESHOLD:
                     summary_of_actions += f"Buy {p} - {merged_data['web_name'][p]}\n"
                     if w == next_gw:
                         move_summary["buy"].append(merged_data["web_name"][p])
 
             for p in players:
-                if transfer_out[p, w].get_value() > BINARY_THRESHOLD:
+                if val(transfer_out[p, w]) > BINARY_THRESHOLD:
                     summary_of_actions += f"Sell {p} - {merged_data['web_name'][p]}\n"
                     if w == next_gw:
                         move_summary["sell"].append(merged_data["web_name"][p])
 
-            picks_df[picks_df["week"] == w]
             lineup_players = picks_df[(picks_df["week"] == w) & (picks_df["lineup"] == 1)]
             bench_players = picks_df[(picks_df["week"] == w) & (picks_df["bench"] >= 0)]
-
-            # captain_name = picks_df[(picks_df['week'] == w) & (picks_df['captain'] == 1)].iloc[0]['name']
-            # vicecap_name = picks_df[(picks_df['week'] == w) & (picks_df['vicecaptain'] == 1)].iloc[0]['name']
 
             summary_of_actions += "\nLineup: \n"
 
@@ -1113,7 +1047,7 @@ def solve_multi_period_fpl(data, options):
                 return f"{row['name']} ({row['xP']}{', C' if row['captain'] == 1 else ''}{', V' if row['vicecaptain'] == 1 else ''})"
 
             for typ in [1, 2, 3, 4]:
-                type_players = lineup_players[lineup_players["type"] == typ]
+                type_players = cast(pd.DataFrame, lineup_players[lineup_players["type"] == typ])
                 entries = type_players.apply(get_display, axis=1)
                 summary_of_actions += "\t" + ", ".join(entries.tolist()) + "\n"
             summary_of_actions += "Bench: \n\t" + ", ".join(bench_players.apply(get_display, axis=1)) + "\n"
@@ -1122,32 +1056,14 @@ def solve_multi_period_fpl(data, options):
                 summary_of_actions += "\n\n"
 
             statistics[int(w)] = {
-                "itb": in_the_bank[w].get_value(),
-                "ft": fts[w].get_value(),
-                "pt": penalized_transfers[w].get_value(),
-                "nt": num_transfers[w].get_value(),
+                "itb": val(in_the_bank[w]),
+                "ft": val(fts[w]),
+                "pt": val(penalized_transfers[w]),
+                "nt": val(num_transfers[w]),
                 "xP": lineup_players["xp_cont"].sum(),
-                "obj": round(gw_total[w].get_value(), 2),
+                "obj": round(val(gw_total[w]), 2),
                 "chip": chip_decision if chip_decision != "" else None,
             }
-
-        if options.get("delete_tmp", True):
-            time.sleep(0.1)
-            try:
-                try:
-                    os.unlink(mps_file_name)
-                except Exception:
-                    pass
-                try:
-                    os.unlink(sol_file_name)
-                except Exception:
-                    pass
-                try:
-                    os.unlink(opt_file_name)
-                except Exception:
-                    pass
-            except Exception:
-                print("Could not delete temporary files")
 
         def format_decisions(items):
             return ", ".join(items) if items else "-"
@@ -1159,11 +1075,9 @@ def solve_multi_period_fpl(data, options):
         if options.get("hide_transfers"):
             buy_decisions = sell_decisions = "-"
 
-        # Add current solution to a list, and add a new cut
         solutions.append(
             {
                 "iter": iteration,
-                "model": model,
                 "picks": picks_df,
                 "total_xp": total_xp,
                 "summary": summary_of_actions,
@@ -1171,8 +1085,8 @@ def solve_multi_period_fpl(data, options):
                 "buy": buy_decisions,
                 "sell": sell_decisions,
                 "chip": chip_decisions,
-                "score": -model.get_objective_value(),
-                "decay_metrics": {key: value.get_value() for key, value in decay_metrics.items()},
+                "score": val(objective_expr),
+                "decay_metrics": {key: val(value) for key, value in decay_metrics.items()},
             }
         )
 
@@ -1182,51 +1096,47 @@ def solve_multi_period_fpl(data, options):
         iter_diff = options.get("iteration_difference", 1)
 
         if iteration_criteria == "this_gw_transfer_in":
-            actions = so.expr_sum(
-                1 - transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() > BINARY_THRESHOLD
-            ) + so.expr_sum(transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() < BINARY_THRESHOLD)
-            model.add_constraint(actions >= 1, name=f"cutoff_{iteration}")
+            actions = sum_(1 - transfer_in[p, next_gw] for p in players if val(transfer_in[p, next_gw]) > BINARY_THRESHOLD) + sum_(
+                transfer_in[p, next_gw] for p in players if val(transfer_in[p, next_gw]) < BINARY_THRESHOLD
+            )
+            m.addConstr(actions >= 1)
 
         elif iteration_criteria == "this_gw_transfer_out":
-            actions = so.expr_sum(
-                1 - transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() > BINARY_THRESHOLD
-            ) + so.expr_sum(transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() < BINARY_THRESHOLD)
-            model.add_constraint(actions >= 1, name=f"cutoff_{iteration}")
+            actions = sum_(1 - transfer_out[p, next_gw] for p in players if val(transfer_out[p, next_gw]) > BINARY_THRESHOLD) + sum_(
+                transfer_out[p, next_gw] for p in players if val(transfer_out[p, next_gw]) < BINARY_THRESHOLD
+            )
+            m.addConstr(actions >= 1)
 
         elif iteration_criteria == "this_gw_transfer_in_out":
             actions = (
-                so.expr_sum(1 - transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() > BINARY_THRESHOLD)
-                + so.expr_sum(transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() < BINARY_THRESHOLD)
-                + so.expr_sum(1 - transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() > BINARY_THRESHOLD)
-                + so.expr_sum(transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() < BINARY_THRESHOLD)
+                sum_(1 - transfer_in[p, next_gw] for p in players if val(transfer_in[p, next_gw]) > BINARY_THRESHOLD)
+                + sum_(transfer_in[p, next_gw] for p in players if val(transfer_in[p, next_gw]) < BINARY_THRESHOLD)
+                + sum_(1 - transfer_out[p, next_gw] for p in players if val(transfer_out[p, next_gw]) > BINARY_THRESHOLD)
+                + sum_(transfer_out[p, next_gw] for p in players if val(transfer_out[p, next_gw]) < BINARY_THRESHOLD)
             )
-            model.add_constraint(actions >= 1, name=f"cutoff_{iteration}")
+            m.addConstr(actions >= 1)
 
         elif iteration_criteria == "chip_gws":
             actions = (
-                so.expr_sum(1 - use_wc[w] for w in gws if use_wc[w].get_value() > BINARY_THRESHOLD)
-                + so.expr_sum(use_wc[w] for w in gws if use_wc[w].get_value() < BINARY_THRESHOLD)
-                + so.expr_sum(1 - use_bb[w] for w in gws if use_bb[w].get_value() > BINARY_THRESHOLD)
-                + so.expr_sum(use_bb[w] for w in gws if use_bb[w].get_value() < BINARY_THRESHOLD)
-                + so.expr_sum(1 - use_fh[w] for w in gws if use_fh[w].get_value() > BINARY_THRESHOLD)
-                + so.expr_sum(use_fh[w] for w in gws if use_fh[w].get_value() < BINARY_THRESHOLD)
+                sum_(1 - use_wc[w] for w in gws if val(use_wc[w]) > BINARY_THRESHOLD)
+                + sum_(use_wc[w] for w in gws if val(use_wc[w]) < BINARY_THRESHOLD)
+                + sum_(1 - use_bb[w] for w in gws if val(use_bb[w]) > BINARY_THRESHOLD)
+                + sum_(use_bb[w] for w in gws if val(use_bb[w]) < BINARY_THRESHOLD)
+                + sum_(1 - use_fh[w] for w in gws if val(use_fh[w]) > BINARY_THRESHOLD)
+                + sum_(use_fh[w] for w in gws if val(use_fh[w]) < BINARY_THRESHOLD)
             )
-            model.add_constraint(actions >= 1, name=f"cutoff_{iteration}")
+            m.addConstr(actions >= 1)
 
         elif iteration_criteria == "target_gws_transfer_in":
             target_gws = options.get("iteration_target", [next_gw])
-            transferred_players = [[p, w] for p in players for w in target_gws if transfer_in[p, w].get_value() > BINARY_THRESHOLD]
-            remaining_players = [[p, w] for p in players for w in target_gws if transfer_in[p, w].get_value() < BINARY_THRESHOLD]
+            transferred_players = [[p, w] for p in players for w in target_gws if val(transfer_in[p, w]) > BINARY_THRESHOLD]
+            remaining_players = [[p, w] for p in players for w in target_gws if val(transfer_in[p, w]) < BINARY_THRESHOLD]
 
-            actions = so.expr_sum(1 - transfer_in[p, w] for [p, w] in transferred_players) + so.expr_sum(
-                transfer_in[p, w] for [p, w] in remaining_players
-            )
-            model.add_constraint(actions >= 1, name=f"cutoff_{iteration}")
+            actions = sum_(1 - transfer_in[p, w] for [p, w] in transferred_players) + sum_(transfer_in[p, w] for [p, w] in remaining_players)
+            m.addConstr(actions >= 1)
 
         elif iteration_criteria == "this_gw_lineup":
-            selected_lineup = [p for p in players if lineup[p, next_gw].get_value() > BINARY_THRESHOLD]
-            model.add_constraint(
-                so.expr_sum(lineup[p, next_gw] for p in selected_lineup) <= len(selected_lineup) - iter_diff, name=f"cutoff_{iteration}"
-            )
+            selected_lineup = [p for p in players if val(lineup[p, next_gw]) > BINARY_THRESHOLD]
+            m.addConstr(sum_(lineup[p, next_gw] for p in selected_lineup) <= len(selected_lineup) - iter_diff)
 
     return solutions
