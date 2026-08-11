@@ -60,7 +60,7 @@ def load_config_files(config_paths):
     paths = config_paths.split(";")
     for path in paths:
         stripped_path = path.strip()
-        if not path:
+        if not stripped_path:
             continue
         try:
             with open(stripped_path) as f:
@@ -115,10 +115,7 @@ def cached_request(url):
         data = response.json()
 
         # Update cache
-        cache[url] = {
-            "data": data,
-            "timestamp": current_time
-        }
+        cache[url] = {"data": data, "timestamp": current_time}
 
         # Save cache to file
         with open(CACHE_FILE, "w") as f:

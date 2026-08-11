@@ -72,6 +72,14 @@ def test_semicolon_only_config_path():
     assert config == {}
 
 
+def test_whitespace_only_config_path(capsys):
+    """Test that whitespace-only config paths are skipped silently."""
+    config = load_config_files(" ; ")
+    captured = capsys.readouterr()
+    assert config == {}
+    assert captured.out == ""
+
+
 @pytest.fixture
 def mock_argv(monkeypatch):
     """Fixture to temporarily replace sys.argv"""
