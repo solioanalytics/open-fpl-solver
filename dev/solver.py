@@ -613,7 +613,7 @@ def solve_multi_period_fpl(data, options):
 
     if options.get("no_future_transfer", None):
         print("OC - No Future Tr")
-        m.addConstr(sum_(transfer_in[p, w] for p in players for w in gws if w > next_gw and w not in options.get("use_wc")) == 0)
+        m.addConstr(sum_(transfer_in[p, w] for p in players for w in gws if w > next_gw and w not in options.get("use_wc", [])) == 0)
 
     if options.get("no_transfer_last_gws", None):
         print("OC - No TR last GWs")
@@ -625,7 +625,7 @@ def solve_multi_period_fpl(data, options):
         print("OC - Num Transfers")
         m.addConstr(sum_(transfer_in[p, next_gw] for p in players) == options["num_transfers"])
 
-    if options.get("hit_limit", None):
+    if options.get("hit_limit", None) is not None:
         print("OC - Hit Limit")
         m.addConstr(sum_(penalized_transfers[w] for w in gws) <= int(options["hit_limit"]))
 
@@ -637,7 +637,7 @@ def solve_multi_period_fpl(data, options):
     #     ft_custom_value = {int(key): value for (key, value) in options.get('ft_custom_value', {}).items()}
     #     ft_gw_value = {**{gw: ft_value for gw in gws}, **ft_custom_value}
 
-    if options.get("future_transfer_limit", None):
+    if options.get("future_transfer_limit", None) is not None:
         print("OC - Future TR Limit")
         m.addConstr(
             sum_(transfer_in[p, w] for p in players for w in gws if w > next_gw and w not in options.get("use_wc", []))
@@ -653,7 +653,7 @@ def solve_multi_period_fpl(data, options):
         print("OC - No TR by position")
         if len(options["no_transfer_by_position"]) > 0:
             m.addConstrs(
-                [transfer_in[p, w] <= use_wc[w] for p in players for w in gws if w > 1 if player_pos[p] in options["no_transfer_by_position"]]
+                [transfer_in[p, w] <= use_wc[w] for p in players for w in gws if w > next_gw if player_pos[p] in options["no_transfer_by_position"]]
             )
 
     max_defs_per_team = options.get("max_defenders_per_team", 3)
