@@ -2,7 +2,6 @@
     "datasource": "solio",
     "team_data": "id",
     "team_id": null,
-    "preseason": true,
     "horizon": 8,
     "no_transfer_last_gws": 2,
     "decay_base": 0.9,
