@@ -611,7 +611,9 @@ def solve_multi_period_fpl(data, options):
     if options.get("locked_next_gw", None):
         print("OC - Locked Next GW")
         locked_in_gw = [(x, gws[0]) if isinstance(x, int) else tuple(x) for x in options["locked_next_gw"]]
-        m.addConstrs([squad[p0, p1] == 1 for (p0, p1) in locked_in_gw])
+        # On a free hit week the locked player must be in the free hit squad; otherwise in the real squad.
+        m.addConstrs([squad[p0, p1] >= 1 - use_fh[p1] for (p0, p1) in locked_in_gw])
+        m.addConstrs([squad_fh[p0, p1] >= use_fh[p1] for (p0, p1) in locked_in_gw])
 
     if options.get("no_future_transfer", None):
         print("OC - No Future Tr")
