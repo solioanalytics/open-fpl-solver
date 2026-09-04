@@ -510,55 +510,21 @@ def solve_multi_period_fpl(data, options):
     m.addConstrs([aux[w] <= 1 - use_fh[w - 1] for w in gws if w > next_gw])
     m.addConstrs([use_tc[p, w] <= captain[p, w] for p in players for w in gws])
 
-    wc = options.get("use_wc", [])
-    if len(wc) > 0:
-        m.addConstrs([use_wc[w] == 1 for w in wc])
-        chip_limits["wc"] = len(wc)
+    chip_vars = {"wc": use_wc, "bb": use_bb, "fh": use_fh, "tc": use_tc_gw}
 
-    bb = options.get("use_bb", [])
-    if len(bb) > 0:
-        m.addConstrs([use_bb[w] == 1 for w in bb])
-        chip_limits["bb"] = len(bb)
+    for chip, var in chip_vars.items():
+        forced_use = options.get(f"use_{chip}", [])
+        if forced_use:
+            m.addConstrs([var[w] == 1 for w in forced_use])
+            chip_limits[chip] = len(forced_use)
 
-    fh = options.get("use_fh", [])
-    if len(fh) > 0:
-        m.addConstrs([use_fh[w] == 1 for w in fh])
-        chip_limits["fh"] = len(fh)
+        if allowed_chip_gws.get(chip):
+            m.addConstrs([var[w] == 0 for w in gws if w not in allowed_chip_gws[chip]])
+            chip_limits[chip] = 1
 
-    tc = options.get("use_tc", [])
-    if len(tc) > 0:
-        m.addConstrs([use_tc_gw[w] == 1 for w in tc])
-        chip_limits["tc"] = len(tc)
-
-    if len(allowed_chip_gws.get("wc", [])) > 0:
-        gws_banned = [w for w in gws if w not in allowed_chip_gws["wc"]]
-        m.addConstrs([use_wc[w] == 0 for w in gws_banned])
-        chip_limits["wc"] = 1
-    if len(allowed_chip_gws.get("fh", [])) > 0:
-        gws_banned = [w for w in gws if w not in allowed_chip_gws["fh"]]
-        m.addConstrs([use_fh[w] == 0 for w in gws_banned])
-        chip_limits["fh"] = 1
-    if len(allowed_chip_gws.get("bb", [])) > 0:
-        gws_banned = [w for w in gws if w not in allowed_chip_gws["bb"]]
-        m.addConstrs([use_bb[w] == 0 for w in gws_banned])
-        chip_limits["bb"] = 1
-    if len(allowed_chip_gws.get("tc", [])) > 0:
-        gws_banned = [w for w in gws if w not in allowed_chip_gws["tc"]]
-        m.addConstrs([use_tc_gw[w] == 0 for w in gws_banned])
-        chip_limits["tc"] = 1
-
-    if len(forced_chip_gws.get("wc", [])) > 0:
-        m.addConstr(sum_(use_wc[w] for w in forced_chip_gws["wc"]) == 1)
-        chip_limits["wc"] = 1
-    if len(forced_chip_gws.get("fh", [])) > 0:
-        m.addConstr(sum_(use_fh[w] for w in forced_chip_gws["fh"]) == 1)
-        chip_limits["fh"] = 1
-    if len(forced_chip_gws.get("bb", [])) > 0:
-        m.addConstr(sum_(use_bb[w] for w in forced_chip_gws["bb"]) == 1)
-        chip_limits["bb"] = 1
-    if len(forced_chip_gws.get("tc", [])) > 0:
-        m.addConstr(sum_(use_tc_gw[w] for w in forced_chip_gws["tc"]) == 1)
-        chip_limits["tc"] = 1
+        if forced_chip_gws.get(chip):
+            m.addConstr(sum_(var[w] for w in forced_chip_gws[chip]) == 1)
+            chip_limits[chip] = 1
 
     m.addConstr(sum_(use_wc[w] for w in gws) <= chip_limits.get("wc", 0))
     m.addConstr(sum_(use_bb[w] for w in gws) <= chip_limits.get("bb", 0))
