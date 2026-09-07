@@ -136,6 +136,15 @@ def prep_data(my_data, options):
     # Everything downstream expects the single-letter form.
     data["Pos"] = data["Pos"].replace({"GKP": "G", "GK": "G", "DEF": "D", "MID": "M", "FWD": "F"})
 
+    # Owned players the projection source does not cover would be dropped by the merge below,
+    # and the solve would then fail on a missing price. Give them a zero-EV row instead.
+    missing = [int(i["element"]) for i in my_data["picks"] if int(i["element"]) not in set(data["ID"])]
+    if missing:
+        pos_by_type = {t["id"]: t["singular_name_short"][0] for t in fpl_data["element_types"]}
+        pos_by_id = {x["id"]: pos_by_type[x["element_type"]] for x in fpl_data["elements"]}
+        print(f"Squad players missing from projection data, added with zero EV: {missing}")
+        data = pd.concat([data, pd.DataFrame([{**dict.fromkeys(data.columns, 0), "ID": p, "Pos": pos_by_id[p]} for p in missing])], ignore_index=True)
+
     merged_data = pd.merge(elements_team, data, left_on="id_x", right_on="ID")
     merged_data.set_index(["id_x"], inplace=True)
 
