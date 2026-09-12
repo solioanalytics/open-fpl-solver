@@ -3,9 +3,7 @@ import os
 import sys
 from unicodedata import combining, normalize
 
-import numpy as np
 import pandas as pd
-import requests
 from fuzzywuzzy import fuzz
 
 from paths import DATA_DIR
@@ -268,6 +266,14 @@ def fix_mikkel(file_address):
     return pd.concat([df_cleaned, pd.DataFrame(missing_players)]).fillna(0)
 
 
+# Mikkel's export mixes padded strings ("  5.67 "), a "-" placeholder for no data, and
+# numeric zeroes on the rows we add for players who are missing from his sheet. Coerce all
+# of those to floats, treating anything unparseable as zero.
+def clean_numeric_column(series):
+    cleaned = series.astype(str).str.strip().replace({"-": "0", "": "0"})
+    return pd.to_numeric(cleaned, errors="coerce").fillna(0.0)
+
+
 # To convert cleaned Mikkel data into Review format
 def convert_mikkel_to_review(target, output_file):
     # Read and add ID column
@@ -292,8 +298,8 @@ def convert_mikkel_to_review(target, output_file):
     for i in df.columns:
         try:
             int(i)
-            df[f"{i}_Pts"] = df[i].str.strip().replace({"-": 0}).astype(float)
-            df[f"{i}_xMins"] = df["Weighted minutes"].str.strip().replace({"-": 0}).astype(float).replace({np.nan: 0})
+            df[f"{i}_Pts"] = clean_numeric_column(df[i])
+            df[f"{i}_xMins"] = clean_numeric_column(df["Weighted minutes"])
             gws.append(i)
         except Exception:
             continue
