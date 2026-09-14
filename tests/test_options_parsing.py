@@ -3,9 +3,11 @@ import json
 import sys
 import tempfile
 from pathlib import Path
+from unittest.mock import Mock
 
 import pytest
 
+from run import solve
 from run.solve import load_config_files
 
 
@@ -190,3 +192,91 @@ def test_partial_cli_override(temp_config_files, monkeypatch):
         assert options["solve_name"] == "test"
         assert options["horizon"] == 7
         assert options["iterations"] == 100  # Unchanged from config
+
+
+@pytest.fixture
+def capture_solve_options(monkeypatch):
+    """Run the real CLI parsing and stop before data preparation or optimization."""
+
+    def capture(arguments, runtime_options=None):
+        monkeypatch.setattr(sys, "argv", ["solve.py", *arguments])
+        monkeypatch.setattr(
+            solve,
+            "load_settings",
+            lambda: {
+                "preseason": True,
+                "team_data": "id",
+                "team_id": 12345,
+                "export_image": True,
+                "randomized": False,
+            },
+        )
+        monkeypatch.setattr(solve, "generate_team_json", Mock(return_value={"picks": [{"element": 1}]}))
+        prep_data = Mock(side_effect=StopIteration)
+        monkeypatch.setattr(solve, "prep_data", prep_data)
+
+        with pytest.raises(StopIteration):
+            solve.solve_regular(runtime_options)
+
+        return prep_data.call_args.args
+
+    return capture
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("false", False),
+        ("False", False),
+        ("0", False),
+        ("no", False),
+        ("off", False),
+        ("true", True),
+        ("TRUE", True),
+        ("1", True),
+        ("yes", True),
+        ("on", True),
+    ],
+)
+def test_solve_cli_boolean_values(capture_solve_options, value, expected):
+    _, options = capture_solve_options(["--export_image", value, "--randomized", value])
+    assert options["export_image"] is expected
+    assert options["randomized"] is expected
+
+
+@pytest.mark.parametrize("value", ["false", "0"])
+def test_solve_cli_false_preseason_keeps_existing_squad(capture_solve_options, value):
+    my_data, options = capture_solve_options(["--preseason", value])
+    assert options["preseason"] is False
+    assert my_data["picks"] == [{"element": 1}]
+
+
+def test_solve_cli_omitted_booleans_keep_defaults(capture_solve_options):
+    my_data, options = capture_solve_options([])
+    assert options["export_image"] is True
+    assert options["randomized"] is False
+    assert options["preseason"] is True
+    assert my_data["picks"] == []
+
+
+def test_solve_cli_boolean_overrides_config(capture_solve_options, tmp_path):
+    config_path = tmp_path / "booleans.json"
+    config_path.write_text(json.dumps({"export_image": False, "randomized": True}))
+
+    _, options = capture_solve_options(["--config", str(config_path), "--randomized", "false"])
+    assert options["export_image"] is False
+    assert options["randomized"] is False
+
+
+def test_solve_runtime_boolean_overrides_cli(capture_solve_options):
+    _, options = capture_solve_options(["--export_image", "false"], runtime_options={"export_image": True})
+    assert options["export_image"] is True
+
+
+@pytest.mark.parametrize("value", ["maybe", "2", ""])
+def test_solve_cli_rejects_invalid_boolean(capture_solve_options, capsys, value):
+    with pytest.raises(SystemExit) as exc:
+        capture_solve_options(["--export_image", value])
+
+    assert exc.value.code == 2
+    assert "--export_image" in capsys.readouterr().err

@@ -21,6 +21,15 @@ IS_COLAB = "COLAB_GPU" in os.environ
 BINARY_THRESHOLD = 0.5
 
 
+def _parse_bool(value):
+    """Parse boolean CLI values without treating every nonempty string as true."""
+    if value.lower() in {"true", "yes", "on", "1"}:
+        return True
+    if value.lower() in {"false", "no", "off", "0"}:
+        return False
+    raise argparse.ArgumentTypeError("expected true/false, yes/no, on/off or 1/0")
+
+
 def is_latest_version():
     try:
         # Get the current branch name
@@ -68,7 +77,8 @@ def solve_regular(runtime_options=None):
         if value is None or isinstance(value, list | dict):
             parser.add_argument(f"--{key}", default=value)
             continue
-        parser.add_argument(f"--{key}", type=type(value), default=value)
+        value_type = _parse_bool if isinstance(value, bool) else type(value)
+        parser.add_argument(f"--{key}", type=value_type, default=value)
 
     # Parse remaining arguments, which will take highest priority
     args = vars(parser.parse_args(remaining_args))
