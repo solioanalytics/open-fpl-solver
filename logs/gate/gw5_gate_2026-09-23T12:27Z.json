@@ -1,0 +1,114 @@
+{
+ "gate_log_ref": "gw5_gate_2026-09-23T12:27Z",
+ "gameweek": 5,
+ "reasons": [
+  "variance check (solio): mean per-player CV across GWs = 0.000, zero-variance fraction = 100%",
+  "FLAT/MOCKED: 100% of players have identical projections every GW \u2014 not real data",
+  "fixture cross-check: 406 players vs bootstrap \u2014 0 unknown ids, 0 team mismatches; GW5 fixture list: present",
+  "completeness check: no research/pattern/domain artifacts supplied \u2014 gate operating in projection-only mode (checks 1+2). Candidates unsupervised."
+ ],
+ "player_flags": [
+  {
+   "player_id": "1",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "4",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "5",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "7",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "8",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "9",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "10",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "11",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "12",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "13",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "14",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "15",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "16",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "17",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "19",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "25",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "26",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "31",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "452",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  },
+  {
+   "player_id": "557",
+   "issue": "flat/mock projection",
+   "severity": "blocking"
+  }
+ ],
+ "decision": "reject",
+ "confidence": 0.0
+}

@@ -1,0 +1,149 @@
+Running HiGHS 1.15.1 (git hash: 04024d7): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+MIP has 18110 rows; 10797 cols; 69698 nonzeros; 10792 integer variables (10779 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 2e+01]
+  Cost    [2e-03, 9e+00]
+  Bound   [1e+00, 2e+01]
+  RHS     [1e+00, 1e+02]
+Presolving model
+15981 rows, 8357 cols, 42906 nonzeros 0s
+8733 rows, 7689 cols, 34540 nonzeros 0s
+8463 rows, 7249 cols, 33591 nonzeros 0s
+Presolve reductions: rows 8463(-9647); columns 7249(-3548); nonzeros 33591(-36107) 
+
+Solving MIP model with:
+   8463 rows
+   7249 cols (7243 binary, 4 integer, 2 implied int., 0 continuous, 0 domain fixed)
+   33591 nonzeros
+   Thread count 2 (of 4 threads). Using 4 max workers. Parallel search on
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   2850.295261     -inf                 inf        0      0      0         0     0.8s
+         0       0         0   0.00%   345.5761867     -inf                 inf        0      0      1      3256     1.4s
+ R       0       0         0 100.00%   344.1181867     344.1181867        0.00%        2      0      1      3259     1.5s
+         1       0         1 100.00%   344.1181867     344.1181867        0.00%        0      0      1      3259     1.5s
+
+Solving report
+  Status            Optimal
+  Primal bound      344.11818672
+  Dual bound        344.11818672
+  Gap               0%
+  P-D integral      0
+  Solution status   feasible
+                    344.11818672 (objective)
+                    0 (bound viol.)
+                    0 (int. viol.)
+                    0 (row viol.)
+  Timing            1.54
+                    0.53 (Presolve)
+                    1.01 (Solve)
+                    0.00 (Postsolve)
+  Max sub-MIP depth 0
+  Nodes             1
+  Repair LPs        0
+  LP iterations     3259
+                    0 (strong br.)
+                    3 (separation)
+                    0 (heuristics)
+Filtered player pool from 406 to 219 players
+This solver is free for personal, educational, or non-commercial use under the Apache License 2.0. Commercial entities must obtain a Commercial License before accessing, viewing, or using the code for any commercial purposes. Unauthorized access or use by commercial entities without a valid commercial license is strictly prohibited. To obtain a commercial license, please contact us at info@fploptimized.com.
+Version: 450 - bf7b2fa
+OC - No TR last GWs
+Using FT values of {'2': 2, '3': 1.6, '4': 1.3, '5': 1.1}
+
+
+Solution 1
+    ** GW 5:
+    ITB=100.0->17.7, FT=0, PT=0, NT=0
+    Buy 330 - Bogle
+    Buy 124 - Groß
+    Buy 115 - De Cuyper
+    Buy 165 - João Pedro
+    Buy 391 - Gvardiol
+    Buy 94 - Schade
+    Buy 572 - Tzolakis
+    Buy 68 - Tavernier
+    Buy 229 - Tarkowski
+    Buy 286 - Belloumi
+    Buy 69 - Scott
+    Buy 279 - Ajayi
+    Buy 316 - Emersonn
+    Buy 109 - Verbruggen
+    Buy 553 - Isidor
+
+    Lineup: 
+    	Tzolakis (7.35)
+    	Tarkowski (7.2), Gvardiol (7.58), De Cuyper (8.2), Bogle (9.43, C)
+    	Scott (7.0), Belloumi (7.14), Tavernier (7.2), Schade (7.5), Groß (8.4, V)
+    	João Pedro (7.79)
+    Bench: 
+    	Verbruggen (4.3), Ajayi (6.83), Emersonn (6.3), Isidor (3.59)
+    Lineup xPts: 94.22
+
+
+    ** GW 6:
+    ITB=17.7->17.7, FT=1, PT=0, NT=0
+
+    Lineup: 
+    	Tzolakis (7.35)
+    	Tarkowski (7.2), Gvardiol (7.58), De Cuyper (8.2), Bogle (9.43, C)
+    	Scott (7.0), Belloumi (7.14), Tavernier (7.2), Schade (7.5), Groß (8.4, V)
+    	João Pedro (7.79)
+    Bench: 
+    	Verbruggen (4.3), Ajayi (6.83), Emersonn (6.3), Isidor (3.59)
+    Lineup xPts: 94.22
+
+
+    ** GW 7:
+    ITB=17.7->17.7, FT=2, PT=0, NT=0
+
+    Lineup: 
+    	Tzolakis (7.35)
+    	Tarkowski (7.2), Gvardiol (7.58), De Cuyper (8.2), Bogle (9.43, C)
+    	Scott (7.0), Belloumi (7.14), Tavernier (7.2), Schade (7.5), Groß (8.4, V)
+    	João Pedro (7.79)
+    Bench: 
+    	Verbruggen (4.3), Ajayi (6.83), Emersonn (6.3), Isidor (3.59)
+    Lineup xPts: 94.22
+
+
+    ** GW 8:
+    ITB=17.7->17.7, FT=3, PT=0, NT=0
+
+    Lineup: 
+    	Tzolakis (7.35)
+    	Tarkowski (7.2), Gvardiol (7.58), De Cuyper (8.2), Bogle (9.43, C)
+    	Scott (7.0), Belloumi (7.14), Tavernier (7.2), Schade (7.5), Groß (8.4, V)
+    	João Pedro (7.79)
+    Bench: 
+    	Verbruggen (4.3), Ajayi (6.83), Emersonn (6.3), Isidor (3.59)
+    Lineup xPts: 94.22
+
+Total xPts over the horizon: 376.88
+
+
+
+
+Transfer Overview
+
+Solution 1
+	GW5:  -> Tzolakis, Tarkowski, Gvardiol, De Cuyper, Bogle, Scott, Belloumi, Tavernier, Schade, Groß, João Pedro, Verbruggen, Ajayi, Emersonn, Isidor
+	GW6: Roll
+	GW7: Roll
+	GW8: Roll
+
+
+Result
+  iter  sell    buy                                                                                                                                         chip      score
+     0  -       Bogle, Groß, De Cuyper, João Pedro, Gvardiol, Schade, Tzolakis, Tavernier, Tarkowski, Belloumi, Scott, Ajayi, Emersonn, Verbruggen, Isidor  -        344.12
+
+
+

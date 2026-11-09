@@ -1,0 +1,742 @@
+{
+  "gw": 5,
+  "generated": "2026-09-16T16:08:57.908953",
+  "call_summary": {
+    "total_calls": 6,
+    "by_expert": {
+      "fixture": {
+        "model_used": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "fallback_depth": 0
+      },
+      "form": {
+        "model_used": "nex-agi/nex-n2.5-pro:free",
+        "fallback_depth": 0
+      },
+      "availability": {
+        "model_used": "poolside/laguna-s-2.1:free",
+        "fallback_depth": 0
+      },
+      "setpiece": {
+        "model_used": "nex-agi/nex-n2.5-pro:free",
+        "fallback_depth": 0
+      },
+      "value": {
+        "model_used": "nvidia/nemotron-3-ultra-550b-a55b:free",
+        "fallback_depth": 0
+      },
+      "nyx": {
+        "model_used": "openai/gpt-4o-mini",
+        "fallback_depth": 0
+      }
+    },
+    "models_resolved": [
+      "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "nex-agi/nex-n2.5-pro:free",
+      "poolside/laguna-s-2.1:free",
+      "nex-agi/nex-n2.5-pro:free",
+      "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "openai/gpt-4o-mini"
+    ]
+  },
+  "players_analyzed": 50,
+  "expert_results": {
+    "fixture": {
+      "player_id": 330,
+      "score": 0.629,
+      "confidence": 0.7,
+      "rationale": "Projected 9.4 pts; difficulty approximated from projection."
+    },
+    "form": {},
+    "availability": [
+      {
+        "player_id": 330,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 124,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 115,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 165,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 411,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 391,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 94,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 572,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 68,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 229,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 286,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 69,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 12,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 426,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 367,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 279,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 1,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 586,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 277,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 649,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 480,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 8,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 40,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 282,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 316,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 15,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 98,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 154,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 504,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 305,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 399,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 388,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 379,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 268,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 335,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 116,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 4,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 427,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 565,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 233,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 334,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 346,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 258,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 605,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 453,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 544,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 10,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 472,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 86,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      },
+      {
+        "player_id": 230,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Fit with low injury risk (0.05) and no suspension; projected to start and play 90 minutes."
+      }
+    ],
+    "setpiece": [
+      {
+        "player_id": 330,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 124,
+        "score": 1.0,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 1), corners (order 1), FKs (order 1)."
+      },
+      {
+        "player_id": 115,
+        "score": 0.38,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 2), FKs (order 4)."
+      },
+      {
+        "player_id": 165,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 411,
+        "score": 0.5,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 1)."
+      },
+      {
+        "player_id": 391,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 94,
+        "score": 0.425,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 2)."
+      },
+      {
+        "player_id": 572,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 68,
+        "score": 0.85,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 3), corners (order 1), FKs (order 1)."
+      },
+      {
+        "player_id": 229,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 286,
+        "score": 0.44,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 2), FKs (order 2)."
+      },
+      {
+        "player_id": 69,
+        "score": 0.38,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 2), FKs (order 4)."
+      },
+      {
+        "player_id": 12,
+        "score": 0.94,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 1), corners (order 2), FKs (order 2)."
+      },
+      {
+        "player_id": 426,
+        "score": 1.0,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 1), corners (order 1), FKs (order 1)."
+      },
+      {
+        "player_id": 367,
+        "score": 0.57,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 3), corners (order 2)."
+      },
+      {
+        "player_id": 279,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 1,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 586,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 277,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 649,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 480,
+        "score": 0.75,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 1), FKs (order 1)."
+      },
+      {
+        "player_id": 8,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 40,
+        "score": 0.19,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 3)."
+      },
+      {
+        "player_id": 282,
+        "score": 0.44,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 3), FKs (order 1)."
+      },
+      {
+        "player_id": 316,
+        "score": 0.425,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 2)."
+      },
+      {
+        "player_id": 15,
+        "score": 0.51,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 3), FKs (order 4)."
+      },
+      {
+        "player_id": 98,
+        "score": 0.19,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 3)."
+      },
+      {
+        "player_id": 154,
+        "score": 0.72,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 1), FKs (order 2)."
+      },
+      {
+        "player_id": 504,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 305,
+        "score": 0.22,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: FKs (order 2)."
+      },
+      {
+        "player_id": 399,
+        "score": 0.5,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 1), FKs (order 1)."
+      },
+      {
+        "player_id": 388,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 379,
+        "score": 0.425,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 2)."
+      },
+      {
+        "player_id": 268,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 335,
+        "score": 0.5,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 1), FKs (order 1)."
+      },
+      {
+        "player_id": 116,
+        "score": 0.19,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: FKs (order 3)."
+      },
+      {
+        "player_id": 4,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 427,
+        "score": 0.865,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 2), corners (order 2), FKs (order 2)."
+      },
+      {
+        "player_id": 565,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      }
+    ],
+    "value": {
+      "player_id": 330,
+      "score": 1.0,
+      "confidence": 0.6,
+      "rationale": "EV/m = 2.10 from projection; ownership 4.0%."
+    },
+    "nyx": {
+      "player_adjustments": {
+        "330": 0.43,
+        "124": 0.12,
+        "115": 0.67,
+        "165": -0.5,
+        "411": 0.25,
+        "391": -0.5,
+        "94": 0.15,
+        "572": -0.5,
+        "68": 0.4,
+        "229": -0.5,
+        "286": 0.1,
+        "69": 0.1,
+        "12": 0.3,
+        "426": 0.5,
+        "367": 0.2,
+        "279": -0.5,
+        "1": -0.5,
+        "586": -0.5,
+        "277": -0.5,
+        "649": -0.5,
+        "480": 0.35,
+        "8": -0.5,
+        "40": 0.05,
+        "282": 0.1,
+        "316": 0.2,
+        "15": 0.3,
+        "98": 0.05,
+        "154": 0.4,
+        "504": -0.5,
+        "305": 0.1,
+        "399": 0.2,
+        "388": -0.5,
+        "379": 0.2,
+        "268": -0.5,
+        "335": 0.2,
+        "116": -0.5,
+        "4": -0.5,
+        "427": 0.5,
+        "565": -0.5
+      }
+    }
+  },
+  "nyx": {
+    "player_adjustments": {
+      "330": 0.43,
+      "124": 0.12,
+      "115": 0.67,
+      "165": -0.5,
+      "411": 0.25,
+      "391": -0.5,
+      "94": 0.15,
+      "572": -0.5,
+      "68": 0.4,
+      "229": -0.5,
+      "286": 0.1,
+      "69": 0.1,
+      "12": 0.3,
+      "426": 0.5,
+      "367": 0.2,
+      "279": -0.5,
+      "1": -0.5,
+      "586": -0.5,
+      "277": -0.5,
+      "649": -0.5,
+      "480": 0.35,
+      "8": -0.5,
+      "40": 0.05,
+      "282": 0.1,
+      "316": 0.2,
+      "15": 0.3,
+      "98": 0.05,
+      "154": 0.4,
+      "504": -0.5,
+      "305": 0.1,
+      "399": 0.2,
+      "388": -0.5,
+      "379": 0.2,
+      "268": -0.5,
+      "335": 0.2,
+      "116": -0.5,
+      "4": -0.5,
+      "427": 0.5,
+      "565": -0.5
+    },
+    "blended_scores": {
+      "1": 0.025,
+      "4": 0.025,
+      "8": 0.025,
+      "10": 0.95,
+      "12": 1.0,
+      "15": 1.0,
+      "40": 0.62,
+      "68": 1.0,
+      "69": 0.765,
+      "86": 0.95,
+      "94": 0.8375,
+      "98": 0.62,
+      "115": 1.0,
+      "116": 0.07,
+      "124": 1.0,
+      "154": 1.0,
+      "165": 0.025,
+      "229": 0.025,
+      "230": 0.95,
+      "233": 0.95,
+      "258": 0.95,
+      "268": 0.025,
+      "277": 0.025,
+      "279": 0.025,
+      "282": 0.795,
+      "286": 0.795,
+      "305": 0.685,
+      "316": 0.8875,
+      "330": 0.955,
+      "334": 0.95,
+      "335": 0.925,
+      "346": 0.95,
+      "367": 0.96,
+      "379": 0.8875,
+      "388": 0.025,
+      "391": 0.025,
+      "399": 0.925,
+      "411": 0.975,
+      "426": 1.0,
+      "427": 1.0,
+      "453": 0.95,
+      "472": 0.95,
+      "480": 1.0,
+      "504": 0.025,
+      "544": 0.95,
+      "565": 0.025,
+      "572": 0.025,
+      "586": 0.025,
+      "605": 0.95,
+      "649": 0.025
+    },
+    "model_used": "openai/gpt-4o-mini"
+  },
+  "models_used": {
+    "fixture": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "form": "nex-agi/nex-n2.5-pro:free",
+    "availability": "poolside/laguna-s-2.1:free",
+    "setpiece": "nex-agi/nex-n2.5-pro:free",
+    "value": "nvidia/nemotron-3-ultra-550b-a55b:free",
+    "nyx": "openai/gpt-4o-mini"
+  }
+}

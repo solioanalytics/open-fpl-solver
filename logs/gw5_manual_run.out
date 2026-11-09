@@ -1,0 +1,222 @@
+=== Loading projections ===
+GW 5 | 50 players loaded from data/solio.csv
+Top 5 by projected points:
+  Bogle          LEE   D     4.5  9.4 pts  EV/m=2.10
+  Groß           BHA   M     5.7  8.4 pts  EV/m=1.47
+  De Cuyper      BHA   D     4.8  8.2 pts  EV/m=1.71
+  João Pedro     CHE   F     7.8  7.8 pts  EV/m=1.00
+  Haaland        MCI   F    15.5  7.6 pts  EV/m=0.49
+
+=== Building expert inputs ===
+  50 players → 5 expert prompts
+
+=== Loading agent profiles ===
+  Profiles: ['fixture', 'form', 'availability', 'setpiece', 'value', 'nyx']
+
+=== Calling 5 experts (GW 5) ===
+  Calling fixture with openrouter/free...
+    ✓ fixture -> nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free (4123in/2644out)
+  ✓ fixture -> nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+  Calling form with openrouter/free...
+    ✓ form -> nex-agi/nex-n2.5-pro:free (4680in/1788out)
+  ✓ form -> nex-agi/nex-n2.5-pro:free
+  Calling availability with openrouter/free...
+    ✓ availability -> nvidia/nemotron-3.5-content-safety:free (4016in/5out)
+    ✗ availability no valid JSON found in response
+      Raw content: User Safety: safe
+  Calling availability with nvidia/nemotron-3-ultra-550b-a55b:free...
+    ✗ availability fallback 1 (nvidia/nemotron-3-ultra-550b-a55b:free): 'NoneType' object is not subscriptable
+  Calling availability with poolside/laguna-s-2.1:free...
+    ✓ availability -> poolside/laguna-s-2.1:free (3630in/2939out)
+  ✓ availability -> poolside/laguna-s-2.1:free
+  Calling setpiece with openrouter/free...
+    ✓ setpiece -> nex-agi/nex-n2.5-pro:free (5083in/4000out)
+      ⚠ recovered truncated JSON array (39 objects)
+  ✓ setpiece -> nex-agi/nex-n2.5-pro:free
+  Calling value with openrouter/free...
+    ✓ value -> dots-studio/dots-3-note-preview:free (4485in/4000out)
+    ✗ value no valid JSON found in response
+      Raw content: (empty — finish_reason=length)
+  Calling value with nvidia/nemotron-3-ultra-550b-a55b:free...
+    ✓ value -> nvidia/nemotron-3-ultra-550b-a55b:free (4591in/1260out)
+  ✓ value -> nvidia/nemotron-3-ultra-550b-a55b:free
+
+=== Calling Nyx orchestrator (GW 5) ===
+  Calling nyx with openai/gpt-4o-mini...
+    ✓ nyx -> openai/gpt-4o-mini (4613in/362out)
+  ✓ nyx -> openai/gpt-4o-mini
+
+
+==========================================================================================
+  RANKED PLAYERS — GW 5 (by blended score)
+==========================================================================================
+   #  Player         Team  Pos Price ProjPts Blended NyxAdj
+  --  -------------- ----- --- ----- ------- ------- ------
+   1  Saka           ARS   M     9.5     6.9   1.000  +0.30
+   2  Ødegaard       ARS   M     6.7     6.3   1.000  +0.30
+   3  Tavernier      BOU   M     6.1     7.2   1.000  +0.40
+   4  De Cuyper      BHA   D     4.8     8.2   1.000  +0.67
+   5  Groß           BHA   M     5.7     8.4   1.000  +0.12
+   6  Palmer         CHE   M     9.7     6.2   1.000  +0.40
+   7  B.Fernandes    MUN   M    12.0     6.8   1.000  +0.50
+   8  Mbeumo         MUN   M     7.9     5.5   1.000  +0.50
+   9  Gibbs-White    NFO   M     8.0     6.5   1.000  +0.35
+  10  Haaland        MCI   F    15.5     7.6   0.975  +0.25
+  11  Gakpo          LIV   M     7.2     6.8   0.960  +0.20
+  12  Bogle          LEE   D     4.5     9.4   0.955  +0.43
+  13  White          ARS   D     5.5     4.8   0.950  +0.00
+  14  Lewis-Potter   BRE   M     5.5     4.8   0.950  +0.00
+  15  Branthwaite    EVE   D     5.5     4.8   0.950  +0.00
+  16  Mykolenko      EVE   D     4.5     5.5   0.950  +0.00
+  17  Castagne       FUL   D     4.5     4.9   0.950  +0.00
+  18  Muharemović    LEE   D     5.0     5.3   0.950  +0.00
+  19  Calvert-Lewin  LEE   F     6.0     5.1   0.950  +0.00
+  20  Barnes         NEW   M     6.0     4.9   0.950  +0.00
+  21  Murillo        NFO   D     5.5     4.8   0.950  +0.00
+  22  Xhaka          SUN   M     5.5     4.9   0.950  +0.00
+  23  Yalcouyé       BHA   M     4.5     4.9   0.950  +0.00
+  24  Stach          LEE   M     6.0     5.6   0.925  +0.20
+  25  Cherki         MCI   M     7.8     6.0   0.925  +0.20
+  26  Emersonn       IPS   F     5.5     6.3   0.887  +0.20
+  27  Isak           LIV   F     9.1     5.9   0.887  +0.20
+  28  Schade         BRE   M     6.1     7.5   0.838  +0.15
+  29  Giles          HUL   D     4.0     6.3   0.795  +0.10
+  30  Belloumi       HUL   M     5.1     7.1   0.795  +0.10
+  31  Scott          BOU   M     6.1     7.0   0.765  +0.10
+  32  Davis          IPS   D     4.0     6.1   0.685  +0.10
+  33  Rogers         CHE   M     7.7     6.5   0.620  +0.05
+  34  Janelt         BRE   M     5.0     6.2   0.620  +0.05
+  35  Dunk           BHA   D     4.5     5.6   0.070  -0.50
+  36  Raya           ARS   G     6.0     6.7   0.025  -0.50
+  37  Gabriel        ARS   D     8.0     5.5   0.025  -0.50
+  38  Calafiori      ARS   D     5.8     6.5   0.025  -0.50
+  39  João Pedro     CHE   F     7.8     7.8   0.025  -0.50
+  40  Tarkowski      EVE   D     6.1     7.2   0.025  -0.50
+  41  King           FUL   M     5.5     5.6   0.025  -0.50
+  42  Egan           HUL   D     4.1     6.5   0.025  -0.50
+  43  Ajayi          HUL   D     4.2     6.8   0.025  -0.50
+  44  Guéhi          MCI   D     6.0     6.0   0.025  -0.50
+  45  Gvardiol       MCI   D     5.7     7.6   0.025  -0.50
+  46  Vuskovic       BHA   D     5.0     6.2   0.025  -0.50
+  47  M.Sangaré      BRE   M     5.7     5.5   0.025  -0.50
+  48  Tzolakis       HUL   G     4.6     7.3   0.025  -0.50
+  49  Mendy          HUL   D     4.1     6.5   0.025  -0.50
+  50  Maitland-Niles EVE   D     4.5     6.5   0.025  -0.50
+
+  Legend: Blended = avg(5 expert scores) + Nyx adjustment, clamped 0–1.
+  NyxAdj +ve = Nyx upvotes, -ve = Nyx downvotes.
+
+==========================================================================================
+  PER-EXPERT DETAIL — top 15 by blended score (GW 5)
+==========================================================================================
+
+  --- Saka (ID 12) | blended=1.000 ---
+    fixture     : no data
+    form        : no data
+    availability: score=0.95 conf=0.80 | Fit with low injury risk (0.05) and no suspension; projected to start 
+    setpiece    : score=0.94 conf=0.80 | Setpiece involvement: penalties (order 1), corners (order 2), FKs (ord
+    value       : no data
+
+  --- Ødegaard (ID 15) | blended=1.000 ---
+    fixture     : no data
+    form        : no data
+    availability: score=0.95 conf=0.80 | Fit with low injury risk (0.05) and no suspension; projected to start 
+    setpiece    : score=0.51 conf=0.80 | Setpiece involvement: penalties (order 3), FKs (order 4).
+    value       : no data
+
+  --- Tavernier (ID 68) | blended=1.000 ---
+    fixture     : no data
+    form        : no data
+    availability: score=0.95 conf=0.80 | Fit with low injury risk (0.05) and no suspension; projected to start 
+    setpiece    : score=0.85 conf=0.80 | Setpiece involvement: penalties (order 3), corners (order 1), FKs (ord
+    value       : no data
+
+  --- De Cuyper (ID 115) | blended=1.000 ---
+    fixture     : no data
+    form        : no data
+    availability: score=0.95 conf=0.80 | Fit with low injury risk (0.05) and no suspension; projected to start 
+    setpiece    : score=0.38 conf=0.60 | Setpiece involvement: corners (order 2), FKs (order 4).
+    value       : no data
+
+  --- Groß (ID 124) | blended=1.000 ---
+    fixture     : no data
+    form        : no data
+    availability: score=0.95 conf=0.80 | Fit with low injury risk (0.05) and no suspension; projected to start 
+    setpiece    : score=1.00 conf=0.80 | Setpiece involvement: penalties (order 1), corners (order 1), FKs (ord
+    value       : no data
+
+  --- Palmer (ID 154) | blended=1.000 ---
+    fixture     : no data
+    form        : no data
+    availability: score=0.95 conf=0.80 | Fit with low injury risk (0.05) and no suspension; projected to start 
+    setpiece    : score=0.72 conf=0.80 | Setpiece involvement: penalties (order 1), FKs (order 2).
+    value       : no data
+
+  --- B.Fernandes (ID 426) | blended=1.000 ---
+    fixture     : no data
+    form        : no data
+    availability: score=0.95 conf=0.80 | Fit with low injury risk (0.05) and no suspension; projected to start 
+    setpiece    : score=1.00 conf=0.80 | Setpiece involvement: penalties (order 1), corners (order 1), FKs (ord
+    value       : no data
+
+  --- Mbeumo (ID 427) | blended=1.000 ---
+    fixture     : no data
+    form        : no data
+    availability: score=0.95 conf=0.80 | Fit with low injury risk (0.05) and no suspension; projected to start 
+    setpiece    : score=0.86 conf=0.80 | Setpiece involvement: penalties (order 2), corners (order 2), FKs (ord
+    value       : no data
+
+  --- Gibbs-White (ID 480) | blended=1.000 ---
+    fixture     : no data
+    form        : no data
+    availability: score=0.95 conf=0.80 | Fit with low injury risk (0.05) and no suspension; projected to start 
+    setpiece    : score=0.75 conf=0.80 | Setpiece involvement: penalties (order 1), FKs (order 1).
+    value       : no data
+
+  --- Haaland (ID 411) | blended=0.975 ---
+    fixture     : no data
+    form        : no data
+    availability: score=0.95 conf=0.80 | Fit with low injury risk (0.05) and no suspension; projected to start 
+    setpiece    : score=0.50 conf=0.80 | Setpiece involvement: penalties (order 1).
+    value       : no data
+
+  --- Gakpo (ID 367) | blended=0.960 ---
+    fixture     : no data
+    form        : no data
+    availability: score=0.95 conf=0.80 | Fit with low injury risk (0.05) and no suspension; projected to start 
+    setpiece    : score=0.57 conf=0.80 | Setpiece involvement: penalties (order 3), corners (order 2).
+    value       : no data
+
+  --- Bogle (ID 330) | blended=0.955 ---
+    fixture     : no data
+    form        : no data
+    availability: score=0.95 conf=0.80 | Fit with low injury risk (0.05) and no suspension; projected to start 
+    setpiece    : score=0.10 conf=0.70 | No setpiece involvement (no penalties, corners, or FKs).
+    value       : no data
+
+  --- White (ID 10) | blended=0.950 ---
+    fixture     : no data
+    form        : no data
+    availability: score=0.95 conf=0.80 | Fit with low injury risk (0.05) and no suspension; projected to start 
+    setpiece    : no data
+    value       : no data
+
+  --- Lewis-Potter (ID 86) | blended=0.950 ---
+    fixture     : no data
+    form        : no data
+    availability: score=0.95 conf=0.80 | Fit with low injury risk (0.05) and no suspension; projected to start 
+    setpiece    : no data
+    value       : no data
+
+  --- Branthwaite (ID 230) | blended=0.950 ---
+    fixture     : no data
+    form        : no data
+    availability: score=0.95 conf=0.80 | Fit with low injury risk (0.05) and no suspension; projected to start 
+    setpiece    : no data
+    value       : no data
+
+Full results → logs/gw_5_20260916_1608_analysis.json
+Markdown summary → logs/gw_5_20260916_1608_summary.md
+
+Done. GW 5 analyzed — 50 players, 50 scored.
+EXIT:0

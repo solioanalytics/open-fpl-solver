@@ -1,0 +1,151 @@
+Running HiGHS 1.15.1 (git hash: 04024d7): Copyright (c) 2026 under MIT licence terms
+Includes third-party software components, see THIRD_PARTY_NOTICES.md for full details
+MIP has 18227 rows; 10849 cols; 70477 nonzeros; 10844 integer variables (10831 binary)
+Coefficient ranges:
+  Matrix  [1e+00, 2e+01]
+  Cost    [2e-03, 9e+00]
+  Bound   [1e+00, 2e+01]
+  RHS     [1e+00, 2e+01]
+Presolving model
+16125 rows, 8409 cols, 43702 nonzeros 0s
+9388 rows, 8198 cols, 37336 nonzeros 0s
+8787 rows, 7738 cols, 34422 nonzeros 0s
+Presolve reductions: rows 8787(-9440); columns 7738(-3111); nonzeros 34422(-36055) 
+
+Solving MIP model with:
+   8787 rows
+   7738 cols (7729 binary, 7 integer, 2 implied int., 0 continuous, 0 domain fixed)
+   34422 nonzeros
+   Thread count 2 (of 4 threads). Using 4 max workers. Parallel search on
+
+Src: B => Branching; C => Central rounding; F => Feasibility pump; H => Heuristic;
+     I => Shifting; J => Feasibility jump; L => Sub-MIP; P => Empty MIP; R => Randomized rounding;
+     S => Solve LP; T => Evaluate node; U => Unbounded; X => User solution; Y => HiGHS solution;
+     Z => ZI Round; l => Trivial lower; p => Trivial point; u => Trivial upper; z => Trivial zero
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+Src  Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   2976.512289     -inf                 inf        0      0      0         0     1.0s
+         0       0         0   0.00%   335.5329624     -inf                 inf        0      0      8      3362     1.3s
+ R       0       0         0   0.00%   324.4856572     321.9868072        0.78%       34      2      8      3492     1.5s
+         1       0         1 100.00%   321.9868072     321.9868072        0.00%       20      2      8      3494     1.5s
+
+Solving report
+  Status            Optimal
+  Primal bound      321.98680722
+  Dual bound        321.98680722
+  Gap               0%
+  P-D integral      0.00012443084078
+  Solution status   feasible
+                    321.98680722 (objective)
+                    0 (bound viol.)
+                    0 (int. viol.)
+                    0 (row viol.)
+  Timing            1.49
+                    0.78 (Presolve)
+                    0.71 (Solve)
+                    0.00 (Postsolve)
+  Max sub-MIP depth 0
+  Nodes             1
+  Repair LPs        0
+  LP iterations     3494
+                    0 (strong br.)
+                    130 (separation)
+                    0 (heuristics)
+Filtered player pool from 406 to 219 players
+Added player 229 to list, buy price 6.1 sell price 6.0
+Added player 8 to list, buy price 5.8 sell price 5.6
+Added player 115 to list, buy price 4.8 sell price 4.6
+Added player 88 to list, buy price 4.6 sell price 4.5
+Added player 279 to list, buy price 4.2 sell price 4.1
+Added player 399 to list, buy price 7.8 sell price 7.6
+Added player 367 to list, buy price 7.2 sell price 7.1
+Added player 379 to list, buy price 9.1 sell price 9.0
+Added player 165 to list, buy price 7.8 sell price 7.6
+Added player 572 to list, buy price 4.6 sell price 4.5
+Added player 454 to list, buy price 6.2 sell price 6.1
+Added player 565 to list, buy price 5.7 sell price 5.6
+Added player 464 to list, buy price 6.2 sell price 6.1
+This solver is free for personal, educational, or non-commercial use under the Apache License 2.0. Commercial entities must obtain a Commercial License before accessing, viewing, or using the code for any commercial purposes. Unauthorized access or use by commercial entities without a valid commercial license is strictly prohibited. To obtain a commercial license, please contact us at info@fploptimized.com.
+Version: 450 - bf7b2fa
+OC - No TR last GWs
+Using FT values of {'2': 2, '3': 1.6, '4': 1.3, '5': 1.1}
+
+
+Solution 1
+    ** GW 5:
+    ITB=10.5->10.5, FT=1, PT=0, NT=1
+    Buy 330 - Bogle
+    Sell 88 - Kayode
+
+    Lineup: 
+    	Tzolakis (7.35)
+    	Calafiori (6.48), Ajayi (6.83), Tarkowski (7.2), De Cuyper (8.2, V), Bogle (9.43, C)
+    	Stach (5.64), Cherki (6.01), Gakpo (6.84)
+    	Isak (5.89), João Pedro (7.79)
+    Bench: 
+    	Raya (6.66), M.Sangaré (5.5), Elanga (4.61), Wissa (3.89)
+    Lineup xPts: 87.09
+
+
+    ** GW 6:
+    ITB=10.5->10.9, FT=1, PT=0, NT=1
+    Buy 124 - Groß
+    Sell 454 - Elanga
+
+    Lineup: 
+    	Tzolakis (7.35)
+    	Calafiori (6.48), Ajayi (6.83), Tarkowski (7.2), De Cuyper (8.2), Bogle (9.43, C)
+    	Cherki (6.01), Gakpo (6.84), Groß (8.4, V)
+    	Isak (5.89), João Pedro (7.79)
+    Bench: 
+    	Raya (6.66), Stach (5.64), M.Sangaré (5.5), Wissa (3.89)
+    Lineup xPts: 89.85
+
+
+    ** GW 7:
+    ITB=10.9->10.9, FT=1, PT=0, NT=0
+
+    Lineup: 
+    	Tzolakis (7.35)
+    	Calafiori (6.48), Ajayi (6.83), Tarkowski (7.2), De Cuyper (8.2), Bogle (9.43, C)
+    	Cherki (6.01), Gakpo (6.84), Groß (8.4, V)
+    	Isak (5.89), João Pedro (7.79)
+    Bench: 
+    	Raya (6.66), Stach (5.64), M.Sangaré (5.5), Wissa (3.89)
+    Lineup xPts: 89.85
+
+
+    ** GW 8:
+    ITB=10.9->10.9, FT=2, PT=0, NT=0
+
+    Lineup: 
+    	Tzolakis (7.35)
+    	Calafiori (6.48), Ajayi (6.83), Tarkowski (7.2), De Cuyper (8.2), Bogle (9.43, C)
+    	Cherki (6.01), Gakpo (6.84), Groß (8.4, V)
+    	Isak (5.89), João Pedro (7.79)
+    Bench: 
+    	Raya (6.66), Stach (5.64), M.Sangaré (5.5), Wissa (3.89)
+    Lineup xPts: 89.85
+
+Total xPts over the horizon: 356.64
+
+
+
+
+Transfer Overview
+
+Solution 1
+	GW5: Kayode -> Bogle
+	GW6: Elanga -> Groß
+	GW7: Roll
+	GW8: Roll
+
+
+Result
+  iter  sell    buy    chip      score
+     0  Kayode  Bogle  -        321.99
+
+
+

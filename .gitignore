@@ -16,3 +16,5 @@ solver/*
 *.png
 _test*.*
 .cache/
+.env
+.env.local

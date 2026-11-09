@@ -1,0 +1,779 @@
+{
+  "gw": 5,
+  "call_summary": {
+    "total_calls": 7,
+    "by_expert": {
+      "fixture": {
+        "model_used": "minimax/minimax-m3:free",
+        "fallback_depth": 0
+      },
+      "form": {
+        "model_used": "minimax/minimax-m2.7:free",
+        "fallback_depth": 0
+      },
+      "availability": {
+        "model_used": "minimax/minimax-m2.7:free",
+        "fallback_depth": 0
+      },
+      "setpiece": {
+        "model_used": "minimax/minimax-m2.7:free",
+        "fallback_depth": 0
+      },
+      "value": {
+        "model_used": "minimax/minimax-m2.7:free",
+        "fallback_depth": 3
+      },
+      "nyx": {
+        "model_used": "openai/gpt-4o-mini",
+        "fallback_depth": 0
+      }
+    },
+    "models_resolved": [
+      "minimax/minimax-m3:free",
+      "minimax/minimax-m2.7:free",
+      "minimax/minimax-m2.7:free",
+      "minimax/minimax-m2.7:free",
+      "minimax/minimax-m2.7:free",
+      "minimax/minimax-m2.7:free",
+      "openai/gpt-4o-mini"
+    ]
+  },
+  "expert_results": {
+    "fixture": [
+      {
+        "player_id": 572,
+        "score": 0.61,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #1; favorable home fixture"
+      },
+      {
+        "player_id": 367,
+        "score": 0.59,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #2; strong home fixture"
+      },
+      {
+        "player_id": 279,
+        "score": 0.58,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #3; solid home fixture"
+      },
+      {
+        "player_id": 426,
+        "score": 0.57,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #4; good home fixture"
+      },
+      {
+        "player_id": 586,
+        "score": 0.56,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #5; decent home fixture"
+      },
+      {
+        "player_id": 277,
+        "score": 0.54,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #6; average home fixture"
+      },
+      {
+        "player_id": 69,
+        "score": 0.53,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #7; neutral home fixture"
+      },
+      {
+        "player_id": 399,
+        "score": 0.51,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #8; neutral home fixture"
+      },
+      {
+        "player_id": 330,
+        "score": 0.5,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #9; average home fixture"
+      },
+      {
+        "player_id": 15,
+        "score": 0.49,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #10; moderate home fixture"
+      },
+      {
+        "player_id": 411,
+        "score": 0.49,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #11; moderate home fixture"
+      },
+      {
+        "player_id": 379,
+        "score": 0.49,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #12; moderate home fixture"
+      },
+      {
+        "player_id": 115,
+        "score": 0.48,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #13; moderate home fixture"
+      },
+      {
+        "player_id": 282,
+        "score": 0.47,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #14; moderate home fixture"
+      },
+      {
+        "player_id": 68,
+        "score": 0.47,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #15; moderate home fixture"
+      },
+      {
+        "player_id": 229,
+        "score": 0.47,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #15; moderate home fixture"
+      },
+      {
+        "player_id": 98,
+        "score": 0.47,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #15; moderate home fixture"
+      },
+      {
+        "player_id": 8,
+        "score": 0.45,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #18; below-average home fixture"
+      },
+      {
+        "player_id": 12,
+        "score": 0.45,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #18; below-average home fixture"
+      },
+      {
+        "player_id": 391,
+        "score": 0.45,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #20; below-average home fixture"
+      },
+      {
+        "player_id": 427,
+        "score": 0.44,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #21; below-average home fixture"
+      },
+      {
+        "player_id": 154,
+        "score": 0.44,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #21; below-average home fixture"
+      },
+      {
+        "player_id": 165,
+        "score": 0.44,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #21; below-average home fixture"
+      },
+      {
+        "player_id": 268,
+        "score": 0.43,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #24; below-average home fixture"
+      },
+      {
+        "player_id": 335,
+        "score": 0.43,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #24; below-average home fixture"
+      },
+      {
+        "player_id": 10,
+        "score": 0.41,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #26; below-average home fixture"
+      },
+      {
+        "player_id": 388,
+        "score": 0.41,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #27; below-average home fixture"
+      },
+      {
+        "player_id": 544,
+        "score": 0.41,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #27; below-average home fixture"
+      },
+      {
+        "player_id": 504,
+        "score": 0.41,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #27; below-average home fixture"
+      },
+      {
+        "player_id": 454,
+        "score": 0.41,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #30; below-average home fixture"
+      },
+      {
+        "player_id": 449,
+        "score": 0.41,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #30; below-average home fixture"
+      },
+      {
+        "player_id": 480,
+        "score": 0.4,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #32; weak home fixture"
+      },
+      {
+        "player_id": 565,
+        "score": 0.4,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #32; weak home fixture"
+      },
+      {
+        "player_id": 86,
+        "score": 0.4,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #32; weak home fixture"
+      },
+      {
+        "player_id": 40,
+        "score": 0.4,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #35; weak home fixture"
+      },
+      {
+        "player_id": 453,
+        "score": 0.39,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #36; weak home fixture"
+      },
+      {
+        "player_id": 124,
+        "score": 0.36,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #37; poor home fixture"
+      },
+      {
+        "player_id": 123,
+        "score": 0.36,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #37; poor home fixture"
+      },
+      {
+        "player_id": 332,
+        "score": 0.36,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #37; poor home fixture"
+      },
+      {
+        "player_id": 204,
+        "score": 0.35,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #40; poor home fixture"
+      },
+      {
+        "player_id": 88,
+        "score": 0.35,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #40; poor home fixture"
+      },
+      {
+        "player_id": 173,
+        "score": 0.35,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #42; poor home fixture"
+      },
+      {
+        "player_id": 385,
+        "score": 0.34,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #43; poor home fixture"
+      },
+      {
+        "player_id": 469,
+        "score": 0.33,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #44; weak home fixture"
+      },
+      {
+        "player_id": 94,
+        "score": 0.33,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #44; weak home fixture"
+      },
+      {
+        "player_id": 242,
+        "score": 0.33,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #44; weak home fixture"
+      },
+      {
+        "player_id": 236,
+        "score": 0.33,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #44; weak home fixture"
+      },
+      {
+        "player_id": 286,
+        "score": 0.33,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #48; weak home fixture"
+      },
+      {
+        "player_id": 26,
+        "score": 0.33,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #49; weak home fixture"
+      },
+      {
+        "player_id": 237,
+        "score": 0.33,
+        "confidence": 0.7,
+        "rationale": "Projected points rank #50; weak home fixture"
+      }
+    ],
+    "form": {
+      "player_id": 572,
+      "score": 0.6086666666666667,
+      "confidence": 0.75,
+      "rationale": "Form score = average recent points / 15 (scaled to 0\u20111)"
+    },
+    "availability": [
+      {
+        "player_id": 572,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 367,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 279,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 426,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 586,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 277,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 69,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 399,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 330,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 15,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 411,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 379,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 115,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 282,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 68,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 229,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 98,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 8,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 12,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 391,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 427,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 154,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 165,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 268,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 335,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 10,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 388,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 544,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 504,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 454,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 449,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 480,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 565,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 86,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 40,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 453,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 124,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 123,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 332,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 204,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 88,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 173,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 385,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 469,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 94,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 242,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 236,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 286,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 26,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      },
+      {
+        "player_id": 237,
+        "score": 0.95,
+        "confidence": 0.8,
+        "rationale": "Inferred from projected minutes"
+      }
+    ],
+    "setpiece": {
+      "player_id": 572,
+      "score": 0.0,
+      "confidence": 0.4,
+      "rationale": "No setpiece involvement (pen_taker=false, corners=false, fks=false); opponent concedes setpieces at 0.15, but without a setpiece role the advantage is zero."
+    },
+    "value": {
+      "player_id": 572,
+      "score": 1.0,
+      "confidence": 0.8,
+      "rationale": "EV per million from solio projection"
+    },
+    "nyx": {
+      "player_adjustments": {
+        "572": 0.43,
+        "367": 0.12,
+        "279": 0.67,
+        "426": 0.25,
+        "586": 0.15,
+        "277": 0.1,
+        "69": 0.05,
+        "399": 0.02,
+        "330": 0.0,
+        "15": -0.05,
+        "411": -0.05,
+        "379": -0.05,
+        "115": -0.1,
+        "282": -0.1,
+        "68": -0.1,
+        "229": -0.1,
+        "98": -0.1,
+        "8": -0.15,
+        "12": -0.15,
+        "391": -0.15,
+        "427": -0.2,
+        "154": -0.2,
+        "165": -0.2,
+        "268": -0.25,
+        "335": -0.25,
+        "10": -0.3,
+        "388": -0.3,
+        "544": -0.3,
+        "504": -0.3,
+        "454": -0.3,
+        "449": -0.3,
+        "480": -0.35,
+        "565": -0.35,
+        "86": -0.35,
+        "40": -0.35,
+        "453": -0.4,
+        "124": -0.45,
+        "123": -0.45,
+        "332": -0.45,
+        "204": -0.5,
+        "88": -0.5,
+        "173": -0.5,
+        "385": -0.5,
+        "469": -0.5,
+        "94": -0.5,
+        "242": -0.5,
+        "236": -0.5,
+        "286": -0.5,
+        "26": -0.5,
+        "237": -0.5
+      },
+      "blended_scores": {
+        "8": 0.55,
+        "10": 0.38,
+        "12": 0.55,
+        "15": 0.67,
+        "26": 0.14,
+        "40": 0.325,
+        "68": 0.61,
+        "69": 0.79,
+        "86": 0.325,
+        "88": 0.15,
+        "94": 0.14,
+        "98": 0.61,
+        "115": 0.615,
+        "123": 0.205,
+        "124": 0.205,
+        "154": 0.495,
+        "165": 0.495,
+        "173": 0.15,
+        "204": 0.15,
+        "229": 0.61,
+        "236": 0.14,
+        "237": 0.14,
+        "242": 0.14,
+        "268": 0.44,
+        "277": 0.845,
+        "279": 1.0,
+        "282": 0.61,
+        "286": 0.14,
+        "330": 0.725,
+        "332": 0.205,
+        "335": 0.44,
+        "367": 0.89,
+        "379": 0.67,
+        "385": 0.145,
+        "388": 0.38,
+        "391": 0.55,
+        "399": 0.75,
+        "411": 0.67,
+        "426": 1.0,
+        "427": 0.495,
+        "449": 0.38,
+        "453": 0.27,
+        "454": 0.38,
+        "469": 0.14,
+        "480": 0.325,
+        "504": 0.38,
+        "544": 0.38,
+        "565": 0.325,
+        "572": 1.0,
+        "586": 0.905
+      }
+    }
+  },
+  "models_used": {
+    "fixture": "minimax/minimax-m3:free",
+    "form": "minimax/minimax-m2.7:free",
+    "availability": "minimax/minimax-m2.7:free",
+    "setpiece": "minimax/minimax-m2.7:free",
+    "value": "minimax/minimax-m2.7:free",
+    "nyx": "openai/gpt-4o-mini"
+  }
+}

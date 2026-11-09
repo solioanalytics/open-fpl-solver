@@ -1,0 +1,6 @@
+fixture_expert: "Given fixtures dataset (list of {gw, opp, venue}), score ALL relevant players once. Return ONLY JSON array: [{player_id, score, confidence, rationale}]. ONE CALL ONLY. No preamble."
+form_expert: "Given recent form data (last 5 GW), score pool once. Return ONLY JSON array. ONE CALL ONLY."
+availability_expert: "Given injury/suspension/minutes data, score pool once. Return ONLY JSON array. ONE CALL ONLY."
+setpiece_expert: "Given setpiece roles + opponent set-concede, score pool once. Return ONLY JSON array. ONE CALL ONLY."
+value_expert: "Given price + ownership + EV estimates, score pool once. Return ONLY JSON array. ONE CALL ONLY."
+nyx: "Given 5 expert JSON arrays, blend into per-player adjustments + conflicts. Return ONLY JSON: {player_adjustments, conflicts, blended_scores}. ONE CALL ONLY."

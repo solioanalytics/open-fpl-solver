@@ -1,0 +1,1723 @@
+{
+  "gw": 4,
+  "generated": "2026-09-08T03:35:38.529404",
+  "call_summary": {
+    "total_calls": 6,
+    "by_expert": {
+      "fixture": {
+        "model_used": "openai/gpt-4o-mini",
+        "fallback_depth": 0
+      },
+      "form": {
+        "model_used": "openai/gpt-4o-mini",
+        "fallback_depth": 0
+      },
+      "availability": {
+        "model_used": "openai/gpt-4o-mini",
+        "fallback_depth": 0
+      },
+      "setpiece": {
+        "model_used": "openai/gpt-4o-mini",
+        "fallback_depth": 0
+      },
+      "value": {
+        "model_used": "openai/gpt-4o-mini",
+        "fallback_depth": 0
+      },
+      "nyx": {
+        "model_used": "openai/gpt-4o-mini",
+        "fallback_depth": 0
+      }
+    },
+    "models_resolved": [
+      "openai/gpt-4o-mini",
+      "openai/gpt-4o-mini",
+      "openai/gpt-4o-mini",
+      "openai/gpt-4o-mini",
+      "openai/gpt-4o-mini",
+      "openai/gpt-4o-mini"
+    ]
+  },
+  "players_analyzed": 50,
+  "expert_results": {
+    "fixture": [
+      {
+        "player_id": 572,
+        "score": 0.609,
+        "confidence": 0.7,
+        "rationale": "Projected 9.1 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 367,
+        "score": 0.589,
+        "confidence": 0.7,
+        "rationale": "Projected 8.8 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 279,
+        "score": 0.581,
+        "confidence": 0.7,
+        "rationale": "Projected 8.7 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 426,
+        "score": 0.57,
+        "confidence": 0.7,
+        "rationale": "Projected 8.6 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 586,
+        "score": 0.56,
+        "confidence": 0.7,
+        "rationale": "Projected 8.4 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 277,
+        "score": 0.539,
+        "confidence": 0.7,
+        "rationale": "Projected 8.1 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 69,
+        "score": 0.533,
+        "confidence": 0.7,
+        "rationale": "Projected 8.0 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 399,
+        "score": 0.51,
+        "confidence": 0.7,
+        "rationale": "Projected 7.7 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 330,
+        "score": 0.5,
+        "confidence": 0.7,
+        "rationale": "Projected 7.5 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 15,
+        "score": 0.495,
+        "confidence": 0.7,
+        "rationale": "Projected 7.4 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 411,
+        "score": 0.492,
+        "confidence": 0.7,
+        "rationale": "Projected 7.4 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 379,
+        "score": 0.487,
+        "confidence": 0.7,
+        "rationale": "Projected 7.3 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 115,
+        "score": 0.479,
+        "confidence": 0.7,
+        "rationale": "Projected 7.2 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 282,
+        "score": 0.469,
+        "confidence": 0.7,
+        "rationale": "Projected 7.0 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 68,
+        "score": 0.467,
+        "confidence": 0.7,
+        "rationale": "Projected 7.0 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 229,
+        "score": 0.467,
+        "confidence": 0.7,
+        "rationale": "Projected 7.0 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 98,
+        "score": 0.467,
+        "confidence": 0.7,
+        "rationale": "Projected 7.0 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 8,
+        "score": 0.451,
+        "confidence": 0.7,
+        "rationale": "Projected 6.8 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 12,
+        "score": 0.451,
+        "confidence": 0.7,
+        "rationale": "Projected 6.8 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 391,
+        "score": 0.449,
+        "confidence": 0.7,
+        "rationale": "Projected 6.7 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 427,
+        "score": 0.443,
+        "confidence": 0.7,
+        "rationale": "Projected 6.7 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 154,
+        "score": 0.443,
+        "confidence": 0.7,
+        "rationale": "Projected 6.7 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 165,
+        "score": 0.443,
+        "confidence": 0.7,
+        "rationale": "Projected 6.7 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 268,
+        "score": 0.431,
+        "confidence": 0.7,
+        "rationale": "Projected 6.5 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 335,
+        "score": 0.431,
+        "confidence": 0.7,
+        "rationale": "Projected 6.5 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 10,
+        "score": 0.415,
+        "confidence": 0.7,
+        "rationale": "Projected 6.2 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 388,
+        "score": 0.412,
+        "confidence": 0.7,
+        "rationale": "Projected 6.2 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 544,
+        "score": 0.411,
+        "confidence": 0.7,
+        "rationale": "Projected 6.2 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 504,
+        "score": 0.411,
+        "confidence": 0.7,
+        "rationale": "Projected 6.2 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 454,
+        "score": 0.409,
+        "confidence": 0.7,
+        "rationale": "Projected 6.1 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 449,
+        "score": 0.409,
+        "confidence": 0.7,
+        "rationale": "Projected 6.1 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 480,
+        "score": 0.4,
+        "confidence": 0.7,
+        "rationale": "Projected 6.0 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 565,
+        "score": 0.4,
+        "confidence": 0.7,
+        "rationale": "Projected 6.0 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 86,
+        "score": 0.4,
+        "confidence": 0.7,
+        "rationale": "Projected 6.0 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 40,
+        "score": 0.399,
+        "confidence": 0.7,
+        "rationale": "Projected 6.0 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 453,
+        "score": 0.389,
+        "confidence": 0.7,
+        "rationale": "Projected 5.8 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 124,
+        "score": 0.363,
+        "confidence": 0.7,
+        "rationale": "Projected 5.5 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 123,
+        "score": 0.363,
+        "confidence": 0.7,
+        "rationale": "Projected 5.5 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 332,
+        "score": 0.363,
+        "confidence": 0.7,
+        "rationale": "Projected 5.5 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 204,
+        "score": 0.353,
+        "confidence": 0.7,
+        "rationale": "Projected 5.3 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 88,
+        "score": 0.353,
+        "confidence": 0.7,
+        "rationale": "Projected 5.3 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 173,
+        "score": 0.35,
+        "confidence": 0.7,
+        "rationale": "Projected 5.2 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 385,
+        "score": 0.343,
+        "confidence": 0.7,
+        "rationale": "Projected 5.1 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 469,
+        "score": 0.333,
+        "confidence": 0.7,
+        "rationale": "Projected 5.0 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 94,
+        "score": 0.333,
+        "confidence": 0.7,
+        "rationale": "Projected 5.0 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 242,
+        "score": 0.333,
+        "confidence": 0.7,
+        "rationale": "Projected 5.0 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 236,
+        "score": 0.333,
+        "confidence": 0.7,
+        "rationale": "Projected 5.0 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 286,
+        "score": 0.329,
+        "confidence": 0.7,
+        "rationale": "Projected 4.9 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 26,
+        "score": 0.328,
+        "confidence": 0.7,
+        "rationale": "Projected 4.9 pts; difficulty approximated from projection."
+      },
+      {
+        "player_id": 237,
+        "score": 0.326,
+        "confidence": 0.7,
+        "rationale": "Projected 4.9 pts; difficulty approximated from projection."
+      }
+    ],
+    "form": [
+      {
+        "player_id": 572,
+        "score": 0.609,
+        "confidence": 0.75,
+        "rationale": "Projection 9.1 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 367,
+        "score": 0.589,
+        "confidence": 0.75,
+        "rationale": "Projection 8.8 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 279,
+        "score": 0.581,
+        "confidence": 0.75,
+        "rationale": "Projection 8.7 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 426,
+        "score": 0.57,
+        "confidence": 0.75,
+        "rationale": "Projection 8.6 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 586,
+        "score": 0.56,
+        "confidence": 0.75,
+        "rationale": "Projection 8.4 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 277,
+        "score": 0.539,
+        "confidence": 0.75,
+        "rationale": "Projection 8.1 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 69,
+        "score": 0.533,
+        "confidence": 0.75,
+        "rationale": "Projection 8.0 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 399,
+        "score": 0.51,
+        "confidence": 0.75,
+        "rationale": "Projection 7.7 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 330,
+        "score": 0.5,
+        "confidence": 0.75,
+        "rationale": "Projection 7.5 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 15,
+        "score": 0.495,
+        "confidence": 0.75,
+        "rationale": "Projection 7.4 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 411,
+        "score": 0.492,
+        "confidence": 0.75,
+        "rationale": "Projection 7.4 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 379,
+        "score": 0.487,
+        "confidence": 0.75,
+        "rationale": "Projection 7.3 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 115,
+        "score": 0.479,
+        "confidence": 0.75,
+        "rationale": "Projection 7.2 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 282,
+        "score": 0.469,
+        "confidence": 0.75,
+        "rationale": "Projection 7.0 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 68,
+        "score": 0.467,
+        "confidence": 0.75,
+        "rationale": "Projection 7.0 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 229,
+        "score": 0.467,
+        "confidence": 0.75,
+        "rationale": "Projection 7.0 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 98,
+        "score": 0.467,
+        "confidence": 0.75,
+        "rationale": "Projection 7.0 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 8,
+        "score": 0.451,
+        "confidence": 0.75,
+        "rationale": "Projection 6.8 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 12,
+        "score": 0.451,
+        "confidence": 0.75,
+        "rationale": "Projection 6.8 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 391,
+        "score": 0.449,
+        "confidence": 0.75,
+        "rationale": "Projection 6.7 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 427,
+        "score": 0.443,
+        "confidence": 0.75,
+        "rationale": "Projection 6.7 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 154,
+        "score": 0.443,
+        "confidence": 0.75,
+        "rationale": "Projection 6.7 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 165,
+        "score": 0.443,
+        "confidence": 0.75,
+        "rationale": "Projection 6.7 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 268,
+        "score": 0.431,
+        "confidence": 0.75,
+        "rationale": "Projection 6.5 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 335,
+        "score": 0.431,
+        "confidence": 0.75,
+        "rationale": "Projection 6.5 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 10,
+        "score": 0.415,
+        "confidence": 0.75,
+        "rationale": "Projection 6.2 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 388,
+        "score": 0.412,
+        "confidence": 0.75,
+        "rationale": "Projection 6.2 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 544,
+        "score": 0.411,
+        "confidence": 0.75,
+        "rationale": "Projection 6.2 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 504,
+        "score": 0.411,
+        "confidence": 0.75,
+        "rationale": "Projection 6.2 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 454,
+        "score": 0.409,
+        "confidence": 0.75,
+        "rationale": "Projection 6.1 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 449,
+        "score": 0.409,
+        "confidence": 0.75,
+        "rationale": "Projection 6.1 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 480,
+        "score": 0.4,
+        "confidence": 0.75,
+        "rationale": "Projection 6.0 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 565,
+        "score": 0.4,
+        "confidence": 0.75,
+        "rationale": "Projection 6.0 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 86,
+        "score": 0.4,
+        "confidence": 0.75,
+        "rationale": "Projection 6.0 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 40,
+        "score": 0.399,
+        "confidence": 0.75,
+        "rationale": "Projection 6.0 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 453,
+        "score": 0.389,
+        "confidence": 0.75,
+        "rationale": "Projection 5.8 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 124,
+        "score": 0.363,
+        "confidence": 0.75,
+        "rationale": "Projection 5.5 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 123,
+        "score": 0.363,
+        "confidence": 0.75,
+        "rationale": "Projection 5.5 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 332,
+        "score": 0.363,
+        "confidence": 0.75,
+        "rationale": "Projection 5.5 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 204,
+        "score": 0.353,
+        "confidence": 0.75,
+        "rationale": "Projection 5.3 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 88,
+        "score": 0.353,
+        "confidence": 0.75,
+        "rationale": "Projection 5.3 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 173,
+        "score": 0.35,
+        "confidence": 0.75,
+        "rationale": "Projection 5.2 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 385,
+        "score": 0.343,
+        "confidence": 0.75,
+        "rationale": "Projection 5.1 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 469,
+        "score": 0.333,
+        "confidence": 0.75,
+        "rationale": "Projection 5.0 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 94,
+        "score": 0.333,
+        "confidence": 0.75,
+        "rationale": "Projection 5.0 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 242,
+        "score": 0.333,
+        "confidence": 0.75,
+        "rationale": "Projection 5.0 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 236,
+        "score": 0.333,
+        "confidence": 0.75,
+        "rationale": "Projection 5.0 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 286,
+        "score": 0.329,
+        "confidence": 0.75,
+        "rationale": "Projection 4.9 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 26,
+        "score": 0.328,
+        "confidence": 0.75,
+        "rationale": "Projection 4.9 pts as form proxy; 90 proj. minutes."
+      },
+      {
+        "player_id": 237,
+        "score": 0.326,
+        "confidence": 0.75,
+        "rationale": "Projection 4.9 pts as form proxy; 90 proj. minutes."
+      }
+    ],
+    "availability": [
+      {
+        "player_id": 572,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 367,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 279,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 426,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 586,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 277,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 69,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 399,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 330,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 15,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 411,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 379,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 115,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 282,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 68,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 229,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 98,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 8,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 12,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 391,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 427,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 154,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 165,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 268,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 335,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 10,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 388,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 544,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 504,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 454,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 449,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 480,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 565,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 86,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 40,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 453,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 124,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 123,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 332,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 204,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 88,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 173,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 385,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 469,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 94,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 242,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 236,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 286,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 26,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      },
+      {
+        "player_id": 237,
+        "score": 1,
+        "confidence": 0.8,
+        "rationale": "Projected 90 mins \u2192 likely start."
+      }
+    ],
+    "setpiece": [
+      {
+        "player_id": 572,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 367,
+        "score": 0.57,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 3), corners (order 2)."
+      },
+      {
+        "player_id": 279,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 426,
+        "score": 1.0,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 1), corners (order 1), FKs (order 1)."
+      },
+      {
+        "player_id": 586,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 277,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 69,
+        "score": 0.38,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 2), FKs (order 4)."
+      },
+      {
+        "player_id": 399,
+        "score": 0.5,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 1), FKs (order 1)."
+      },
+      {
+        "player_id": 330,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 15,
+        "score": 0.67,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 3), corners (order 4), FKs (order 4)."
+      },
+      {
+        "player_id": 411,
+        "score": 0.5,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 1)."
+      },
+      {
+        "player_id": 379,
+        "score": 0.425,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 2)."
+      },
+      {
+        "player_id": 115,
+        "score": 0.38,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 2), FKs (order 4)."
+      },
+      {
+        "player_id": 282,
+        "score": 0.5,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 1), FKs (order 1)."
+      },
+      {
+        "player_id": 68,
+        "score": 0.85,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 3), corners (order 1), FKs (order 1)."
+      },
+      {
+        "player_id": 229,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 98,
+        "score": 0.19,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 3)."
+      },
+      {
+        "player_id": 8,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 12,
+        "score": 0.94,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 1), corners (order 2), FKs (order 2)."
+      },
+      {
+        "player_id": 391,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 427,
+        "score": 0.865,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 2), corners (order 2), FKs (order 2)."
+      },
+      {
+        "player_id": 154,
+        "score": 0.69,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 1), FKs (order 3)."
+      },
+      {
+        "player_id": 165,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 268,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 335,
+        "score": 0.5,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 1), FKs (order 1)."
+      },
+      {
+        "player_id": 10,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 388,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 544,
+        "score": 0.47,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 2), FKs (order 1)."
+      },
+      {
+        "player_id": 504,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 454,
+        "score": 0.16,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 4)."
+      },
+      {
+        "player_id": 449,
+        "score": 0.5,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 1), FKs (order 1)."
+      },
+      {
+        "player_id": 480,
+        "score": 0.75,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 1), FKs (order 1)."
+      },
+      {
+        "player_id": 565,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 86,
+        "score": 0.25,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: FKs (order 1)."
+      },
+      {
+        "player_id": 40,
+        "score": 0.16,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 4)."
+      },
+      {
+        "player_id": 453,
+        "score": 0.13,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 5)."
+      },
+      {
+        "player_id": 124,
+        "score": 1.0,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 1), corners (order 1), FKs (order 1)."
+      },
+      {
+        "player_id": 123,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 332,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 204,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 88,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 173,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 385,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 469,
+        "score": 0.44,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 2), FKs (order 2)."
+      },
+      {
+        "player_id": 94,
+        "score": 0.425,
+        "confidence": 0.8,
+        "rationale": "Setpiece involvement: penalties (order 2)."
+      },
+      {
+        "player_id": 242,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 236,
+        "score": 0.22,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 2)."
+      },
+      {
+        "player_id": 286,
+        "score": 0.41,
+        "confidence": 0.6,
+        "rationale": "Setpiece involvement: corners (order 3), FKs (order 2)."
+      },
+      {
+        "player_id": 26,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      },
+      {
+        "player_id": 237,
+        "score": 0.1,
+        "confidence": 0.7,
+        "rationale": "No setpiece involvement (no penalties, corners, or FKs)."
+      }
+    ],
+    "value": [
+      {
+        "player_id": 572,
+        "score": 1.0,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.99 from projection; ownership 9.0%."
+      },
+      {
+        "player_id": 367,
+        "score": 0.819,
+        "confidence": 0.8,
+        "rationale": "EV/m = 1.23 from projection; ownership 14.0%."
+      },
+      {
+        "player_id": 279,
+        "score": 1.0,
+        "confidence": 0.8,
+        "rationale": "EV/m = 2.13 from projection; ownership 11.0%."
+      },
+      {
+        "player_id": 426,
+        "score": 0.475,
+        "confidence": 0.8,
+        "rationale": "EV/m = 0.71 from projection; ownership 47.0%."
+      },
+      {
+        "player_id": 586,
+        "score": 1.0,
+        "confidence": 0.6,
+        "rationale": "EV/m = 2.10 from projection; ownership 7.0%."
+      },
+      {
+        "player_id": 277,
+        "score": 1.0,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.97 from projection; ownership 6.0%."
+      },
+      {
+        "player_id": 69,
+        "score": 0.889,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.33 from projection; ownership 4.0%."
+      },
+      {
+        "player_id": 399,
+        "score": 0.654,
+        "confidence": 0.8,
+        "rationale": "EV/m = 0.98 from projection; ownership 30.0%."
+      },
+      {
+        "player_id": 330,
+        "score": 1.0,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.67 from projection; ownership 1.0%."
+      },
+      {
+        "player_id": 15,
+        "score": 0.749,
+        "confidence": 0.8,
+        "rationale": "EV/m = 1.12 from projection; ownership 13.0%."
+      },
+      {
+        "player_id": 411,
+        "score": 0.317,
+        "confidence": 0.8,
+        "rationale": "EV/m = 0.48 from projection; ownership 71.0%."
+      },
+      {
+        "player_id": 379,
+        "score": 0.535,
+        "confidence": 0.8,
+        "rationale": "EV/m = 0.80 from projection; ownership 20.0%."
+      },
+      {
+        "player_id": 115,
+        "score": 0.999,
+        "confidence": 0.8,
+        "rationale": "EV/m = 1.50 from projection; ownership 19.0%."
+      },
+      {
+        "player_id": 282,
+        "score": 1.0,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.76 from projection; ownership 1.0%."
+      },
+      {
+        "player_id": 68,
+        "score": 0.778,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.17 from projection; ownership 3.0%."
+      },
+      {
+        "player_id": 229,
+        "score": 0.778,
+        "confidence": 0.8,
+        "rationale": "EV/m = 1.17 from projection; ownership 11.0%."
+      },
+      {
+        "player_id": 98,
+        "score": 0.933,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.40 from projection; ownership 1.0%."
+      },
+      {
+        "player_id": 8,
+        "score": 0.792,
+        "confidence": 0.8,
+        "rationale": "EV/m = 1.19 from projection; ownership 47.0%."
+      },
+      {
+        "player_id": 12,
+        "score": 0.475,
+        "confidence": 0.8,
+        "rationale": "EV/m = 0.71 from projection; ownership 11.0%."
+      },
+      {
+        "player_id": 391,
+        "score": 0.801,
+        "confidence": 0.8,
+        "rationale": "EV/m = 1.20 from projection; ownership 20.0%."
+      },
+      {
+        "player_id": 427,
+        "score": 0.561,
+        "confidence": 0.8,
+        "rationale": "EV/m = 0.84 from projection; ownership 26.0%."
+      },
+      {
+        "player_id": 154,
+        "score": 0.462,
+        "confidence": 0.8,
+        "rationale": "EV/m = 0.69 from projection; ownership 22.0%."
+      },
+      {
+        "player_id": 165,
+        "score": 0.576,
+        "confidence": 0.8,
+        "rationale": "EV/m = 0.86 from projection; ownership 72.0%."
+      },
+      {
+        "player_id": 268,
+        "score": 0.784,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.18 from projection; ownership 1.0%."
+      },
+      {
+        "player_id": 335,
+        "score": 0.719,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.08 from projection; ownership 3.0%."
+      },
+      {
+        "player_id": 10,
+        "score": 0.754,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.13 from projection; ownership 8.0%."
+      },
+      {
+        "player_id": 388,
+        "score": 0.687,
+        "confidence": 0.8,
+        "rationale": "EV/m = 1.03 from projection; ownership 19.0%."
+      },
+      {
+        "player_id": 544,
+        "score": 0.748,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.12 from projection; ownership 4.0%."
+      },
+      {
+        "player_id": 504,
+        "score": 0.823,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.23 from projection; ownership 3.0%."
+      },
+      {
+        "player_id": 454,
+        "score": 0.67,
+        "confidence": 0.8,
+        "rationale": "EV/m = 1.00 from projection; ownership 11.0%."
+      },
+      {
+        "player_id": 449,
+        "score": 0.801,
+        "confidence": 0.8,
+        "rationale": "EV/m = 1.20 from projection; ownership 12.0%."
+      },
+      {
+        "player_id": 480,
+        "score": 0.506,
+        "confidence": 0.6,
+        "rationale": "EV/m = 0.76 from projection; ownership 9.0%."
+      },
+      {
+        "player_id": 565,
+        "score": 0.702,
+        "confidence": 0.8,
+        "rationale": "EV/m = 1.05 from projection; ownership 14.0%."
+      },
+      {
+        "player_id": 86,
+        "score": 0.727,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.09 from projection; ownership 2.0%."
+      },
+      {
+        "player_id": 40,
+        "score": 0.525,
+        "confidence": 0.8,
+        "rationale": "EV/m = 0.79 from projection; ownership 28.0%."
+      },
+      {
+        "player_id": 453,
+        "score": 0.648,
+        "confidence": 0.6,
+        "rationale": "EV/m = 0.97 from projection; ownership 2.0%."
+      },
+      {
+        "player_id": 124,
+        "score": 0.661,
+        "confidence": 0.8,
+        "rationale": "EV/m = 0.99 from projection; ownership 16.0%."
+      },
+      {
+        "player_id": 123,
+        "score": 0.605,
+        "confidence": 0.6,
+        "rationale": "EV/m = 0.91 from projection; ownership 1.0%."
+      },
+      {
+        "player_id": 332,
+        "score": 0.807,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.21 from projection; ownership 1.0%."
+      },
+      {
+        "player_id": 204,
+        "score": 0.785,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.18 from projection; ownership 6.0%."
+      },
+      {
+        "player_id": 88,
+        "score": 0.768,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.15 from projection; ownership 9.0%."
+      },
+      {
+        "player_id": 173,
+        "score": 0.875,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.31 from projection; ownership 9.0%."
+      },
+      {
+        "player_id": 385,
+        "score": 0.685,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.03 from projection; ownership 5.0%."
+      },
+      {
+        "player_id": 469,
+        "score": 0.667,
+        "confidence": 0.6,
+        "rationale": "EV/m = 1.00 from projection; ownership 8.0%."
+      },
+      {
+        "player_id": 94,
+        "score": 0.555,
+        "confidence": 0.6,
+        "rationale": "EV/m = 0.83 from projection; ownership 4.0%."
+      },
+      {
+        "player_id": 242,
+        "score": 0.606,
+        "confidence": 0.6,
+        "rationale": "EV/m = 0.91 from projection; ownership 0.0%."
+      },
+      {
+        "player_id": 236,
+        "score": 0.513,
+        "confidence": 0.6,
+        "rationale": "EV/m = 0.77 from projection; ownership 4.0%."
+      },
+      {
+        "player_id": 286,
+        "score": 0.659,
+        "confidence": 0.6,
+        "rationale": "EV/m = 0.99 from projection; ownership 1.0%."
+      },
+      {
+        "player_id": 26,
+        "score": 0.437,
+        "confidence": 0.6,
+        "rationale": "EV/m = 0.66 from projection; ownership 7.0%."
+      },
+      {
+        "player_id": 237,
+        "score": 0.553,
+        "confidence": 0.6,
+        "rationale": "EV/m = 0.83 from projection; ownership 10.0%."
+      }
+    ],
+    "nyx": {
+      "player_adjustments": {
+        "572": 0.43,
+        "367": 0.12,
+        "279": 0.67,
+        "426": 0.5,
+        "586": 0.1,
+        "277": 0.1,
+        "69": 0.38,
+        "399": 0.5,
+        "330": 0.1,
+        "15": 0.67,
+        "411": 0.5,
+        "379": 0.43,
+        "115": 0.38,
+        "282": 0.5,
+        "68": 0.85,
+        "229": 0.1,
+        "98": 0.19,
+        "8": 0.1,
+        "12": 0.94,
+        "391": 0.1,
+        "427": 0.87,
+        "154": 0.69,
+        "165": 0.1,
+        "268": 0.1,
+        "335": 0.5,
+        "10": 0.1,
+        "388": 0.1,
+        "544": 0.47,
+        "504": 0.1,
+        "454": 0.16,
+        "449": 0.5,
+        "480": 0.75,
+        "565": 0.1,
+        "86": 0.25,
+        "40": 0.16,
+        "453": 0.13,
+        "124": 1.0,
+        "123": 0.1,
+        "332": 0.1,
+        "204": 0.1,
+        "88": 0.1,
+        "173": 0.1,
+        "385": 0.1,
+        "469": 0.44,
+        "94": 0.43,
+        "242": 0.1,
+        "236": 0.22,
+        "286": 0.41,
+        "26": 0.1,
+        "237": 0.1
+      }
+    }
+  },
+  "nyx": {
+    "player_adjustments": {
+      "572": 0.43,
+      "367": 0.12,
+      "279": 0.67,
+      "426": 0.5,
+      "586": 0.1,
+      "277": 0.1,
+      "69": 0.38,
+      "399": 0.5,
+      "330": 0.1,
+      "15": 0.67,
+      "411": 0.5,
+      "379": 0.43,
+      "115": 0.38,
+      "282": 0.5,
+      "68": 0.85,
+      "229": 0.1,
+      "98": 0.19,
+      "8": 0.1,
+      "12": 0.94,
+      "391": 0.1,
+      "427": 0.87,
+      "154": 0.69,
+      "165": 0.1,
+      "268": 0.1,
+      "335": 0.5,
+      "10": 0.1,
+      "388": 0.1,
+      "544": 0.47,
+      "504": 0.1,
+      "454": 0.16,
+      "449": 0.5,
+      "480": 0.75,
+      "565": 0.1,
+      "86": 0.25,
+      "40": 0.16,
+      "453": 0.13,
+      "124": 1.0,
+      "123": 0.1,
+      "332": 0.1,
+      "204": 0.1,
+      "88": 0.1,
+      "173": 0.1,
+      "385": 0.1,
+      "469": 0.44,
+      "94": 0.43,
+      "242": 0.1,
+      "236": 0.22,
+      "286": 0.41,
+      "26": 0.1,
+      "237": 0.1
+    },
+    "blended_scores": {
+      "8": 0.6588,
+      "10": 0.6368,
+      "12": 1.0,
+      "15": 1.0,
+      "26": 0.5386,
+      "40": 0.6566,
+      "68": 1.0,
+      "69": 1.0,
+      "86": 0.8054,
+      "88": 0.6148,
+      "94": 0.9592,
+      "98": 0.8014,
+      "115": 1.0,
+      "123": 0.5862,
+      "124": 1.0,
+      "154": 1.0,
+      "165": 0.6124,
+      "173": 0.635,
+      "204": 0.6182,
+      "229": 0.6624,
+      "236": 0.6998,
+      "237": 0.561,
+      "242": 0.5744,
+      "268": 0.6492,
+      "277": 0.7356,
+      "279": 1.0,
+      "282": 1.0,
+      "286": 0.9554,
+      "330": 0.72,
+      "332": 0.6266,
+      "335": 1.0,
+      "367": 0.8334,
+      "379": 1.0,
+      "385": 0.5942,
+      "388": 0.6222,
+      "391": 0.6598,
+      "399": 1.0,
+      "411": 1.0,
+      "426": 1.0,
+      "427": 1.0,
+      "449": 1.0,
+      "453": 0.6412,
+      "454": 0.6896,
+      "469": 0.9946,
+      "480": 1.0,
+      "504": 0.649,
+      "544": 1.0,
+      "565": 0.6204,
+      "572": 1.0,
+      "586": 0.744
+    },
+    "model_used": "openai/gpt-4o-mini"
+  },
+  "models_used": {
+    "fixture": "openai/gpt-4o-mini",
+    "form": "openai/gpt-4o-mini",
+    "availability": "openai/gpt-4o-mini",
+    "setpiece": "openai/gpt-4o-mini",
+    "value": "openai/gpt-4o-mini",
+    "nyx": "openai/gpt-4o-mini"
+  }
+}

@@ -1,0 +1,14 @@
+{
+ "gate_log_ref": "gw99_gate_2026-09-23T12:28Z",
+ "gameweek": 99,
+ "reasons": [
+  "variance check (gate_control): mean per-player CV across GWs = 0.254, zero-variance fraction = 0%",
+  "fixture cross-check: 120 players vs bootstrap \u2014 0 unknown ids, 0 team mismatches; GW99 fixture list: MISSING",
+  "GW99 fixtures not found in live API \u2014 projection references a nonexistent gameweek",
+  "GW99 column absent from projection CSV \u2014 cannot solve this gameweek",
+  "completeness check: no research/pattern/domain artifacts supplied \u2014 gate operating in projection-only mode (checks 1+2). Candidates unsupervised."
+ ],
+ "player_flags": [],
+ "decision": "reject",
+ "confidence": 0.0
+}

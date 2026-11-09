@@ -9,6 +9,35 @@ from fuzzywuzzy import fuzz
 from paths import DATA_DIR
 from utils import cached_request
 
+import pandas as pd
+
+def validate_fpl_projections(df: pd.DataFrame, gw_horizon: int = 8):
+    """Hard gate to crash the solver if fed mock or corrupted data."""
+    # Find all columns that represent projected points (e.g., 1_Pts, 2_Pts)
+    pts_columns = [col for col in df.columns if str(col).endswith('_Pts')]
+    
+    if len(pts_columns) == 0:
+        raise ValueError("TRIPWIRE FATAL: No projected points columns found. Check CSV format.")
+
+    # 2. The GW5 Bogle Preventer: Temporal Flatline Check
+    # Flags if players have the exact same projected points across all 8 gameweeks.
+    flat_percentage = (df[pts_columns].nunique(axis=1) == 1).mean()
+    if flat_percentage > 0.5:
+        raise ValueError(f"TRIPWIRE FATAL: {flat_percentage:.0%} of players have identical projections across all GWs — temporal flatline mock data!")
+
+    # 3. Single-GW flatline (catches fixtures-within-one-column mock)
+    gw1_variance = df[pts_columns[0]].var()
+    if pd.isna(gw1_variance) or gw1_variance < 0.5:
+        raise ValueError(f"TRIPWIRE FATAL: xPts variance is {gw1_variance:.2f}. You are feeding the solver flat mock data!")
+
+    # Check for premium assets to ensure fuzzy matching didn't fail
+    if 'Name' in df.columns:
+        if not df['Name'].str.contains('Haaland|Salah', na=False).any():
+             raise ValueError("TRIPWIRE FATAL: Premium assets missing. ID matching likely failed.")
+
+    print("✅ Data validation passed. Safe to engage MILP solver.")
+    return df
+
 
 def read_data(options, source=None):
     source = options.get("datasource")
@@ -19,7 +48,9 @@ def read_data(options, source=None):
         try:
             latest_file = max((DATA_DIR / x for x in list_of_files), key=os.path.getctime)
             print(f"No source specified, using most recent projection file: {latest_file}")
-            return pd.read_csv(latest_file)
+            df = pd.read_csv(latest_file)
+            df = validate_fpl_projections(df)
+            return df
         except Exception:
             print("Cannot find projection data in /data/. Upload it to /data/ and make sure it is a .csv file")
             sys.exit(0)
@@ -43,19 +74,25 @@ def read_data(options, source=None):
 def read_solio(options):
     # TODO: implement more complex solio data parsing when additional data is added to csv
     filepath = options.get("data_path", DATA_DIR / f"{options['datasource']}.csv")
-    return pd.read_csv(filepath, encoding="utf-8")
+    df = pd.read_csv(filepath, encoding="utf-8")
+    df = validate_fpl_projections(df)
+    return df
 
 
 def read_fplreview(options):
     filepath = options.get("data_path", DATA_DIR / f"{options['datasource']}.csv")
-    return pd.read_csv(filepath, encoding="utf-8")
+    df = pd.read_csv(filepath, encoding="utf-8")
+    df = validate_fpl_projections(df)
+    return df
 
 
 def read_mikkel(options):
     output_file = "mikkel_cleaned.csv"
     input_file = options.get("data_path", DATA_DIR / f"{options['datasource']}.csv")
     convert_mikkel_to_review(input_file, output_file=output_file)
-    return pd.read_csv(DATA_DIR / f"{output_file}", encoding="utf-8")
+    df = pd.read_csv(DATA_DIR / f"{output_file}", encoding="utf-8")
+    df = validate_fpl_projections(df)
+    return df
 
 
 def read_mixed(options, weights):

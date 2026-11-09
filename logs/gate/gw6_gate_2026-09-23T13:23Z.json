@@ -1,0 +1,15 @@
+{
+ "gate_log_ref": "gw6_gate_2026-09-23T13:23Z",
+ "gameweek": 6,
+ "reasons": [
+  "variance check (solio): mean per-player CV across GWs = 0.051, zero-variance fraction = 23%",
+  "fixture cross-check: 487 players vs bootstrap \u2014 0 unknown ids, 0 team mismatches; GW6 fixture list: present",
+  "discrimination: median across-player std within GW = 1.93 pts",
+  "discrimination: team explains 6% of within-GW variance (player-specific signal present)",
+  "completeness check: no research/pattern/domain artifacts supplied \u2014 gate operating in projection-only mode (checks 1+2). Candidates unsupervised."
+ ],
+ "player_flags": [],
+ "decision": "pass",
+ "confidence": 0.8,
+ "pass_kind": "clean-pass"
+}
