@@ -78,11 +78,8 @@ def main():
     THREAT_TO_XGI = 0.18
     rows = []
     for p in bs["elements"]:
-        if p.get("status") == "i":
-            continue
         cop = p.get("chance_of_playing_next_round")
-        if cop is not None and cop < 50:
-            continue
+        unavailable = p.get("status") == "i" or (cop is not None and cop < 50)
         team = p["team"]
         pp10 = float(p.get("points_per_game") or 0)
         mins = int(p.get("minutes") or 0)
@@ -139,8 +136,8 @@ def main():
             cap = GD_CAP.get(pos_letter)
             if cap is not None:
                 xp = min(xp, cap)
-            row[f"{g}_Pts"] = round(max(0.3, xp), 2)
-            row[f"{g}_xMins"] = int(90 * minutes_frac)
+            row[f"{g}_Pts"] = 0.3 if unavailable else round(max(0.3, xp), 2)
+            row[f"{g}_xMins"] = 0 if unavailable else int(90 * minutes_frac)
         rows.append(row)
 
     cols = ["ID", "Name", "Pos", "Value", "Team", "Penalties", "Corners", "FKs", "Ownership"] + [f"{g}_{k}" for g in gws for k in ("Pts", "xMins")]

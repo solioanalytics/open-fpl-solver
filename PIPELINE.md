@@ -26,7 +26,7 @@ Model (documented, deliberately simple — a baseline to beat, not a truth engin
 - **positional ceilings**: G/D xPts capped at 9.0 post-fixture — a CB can still rank by fixture
   (soft 9.0 vs hard 6.77) but can never out-project a premium forward's mean. This fixed the
   Tarkowski-captain-over-Haaland inversion; horizon xPts 472 → 543 (see ADR-0002)
-- excludes suspended (`status == "i"`) and `chance_of_playing_next_round < 50`
+- retains unavailable players (`status == "i"` or `chance_of_playing_next_round < 50`) with 0 expected minutes and 0.3 xPts, so current squads can still be valued and those players can be transferred out
 - output columns: `ID,Name,Pos,Value,Team,Penalties,Corners,FKs,Ownership,{gw}_Pts,{gw}_xMins`
 
 Run: `python build_projection.py [horizon]` (backup of previous CSV kept only if no backup exists).
